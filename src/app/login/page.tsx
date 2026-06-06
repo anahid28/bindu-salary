@@ -47,7 +47,7 @@ export default function LoginPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/bindu-logo-white.png" alt="Bindu Premium" className="h-16 w-auto drop-shadow-lg" />
           </div>
-          <p className="text-sm text-white/50 mt-1">Salary Manager · Admin Login</p>
+          <p className="text-sm text-white/50 mt-1">HR Manager · Admin Login</p>
         </div>
 
         {/* Card */}

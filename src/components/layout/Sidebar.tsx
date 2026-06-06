@@ -33,7 +33,7 @@ function SidebarContent({ onNavClick, onOpenCommandPalette }: { onNavClick?: () 
       <div className="px-5 py-4 border-b border-white/10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/bindu-logo-white.png" alt="Bindu Premium" className="h-10 w-auto" />
-        <p className="text-xs text-white/40 mt-1.5 tracking-wide">Salary Manager</p>
+        <p className="text-xs text-white/40 mt-1.5 tracking-wide">HR Manager</p>
       </div>
       {onOpenCommandPalette && (
         <div className="px-3 pt-3">

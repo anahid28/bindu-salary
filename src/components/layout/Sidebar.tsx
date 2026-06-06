@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { Users, DollarSign, FileText, Gift, Settings, LayoutDashboard, Building2, LogOut, Menu, X, CalendarDays, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
+import Image from 'next/image'
 
 const nav = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -30,9 +31,9 @@ function SidebarContent({ onNavClick, onOpenCommandPalette }: { onNavClick?: () 
 
   return (
     <>
-      <div className="px-6 py-5 border-b border-white/10">
-        <p className="text-xs font-semibold tracking-widest text-white/50 uppercase">Bindu Premium</p>
-        <p className="text-lg font-bold mt-0.5">Salary Manager</p>
+      <div className="px-5 py-4 border-b border-white/10">
+        <Image src="/bindu-logo-white.png" alt="Bindu Premium" width={160} height={52} className="object-contain" priority />
+        <p className="text-xs text-white/40 mt-1.5 tracking-wide">Salary Manager</p>
       </div>
       {onOpenCommandPalette && (
         <div className="px-3 pt-3">

@@ -44,10 +44,9 @@ export default function LoginPage() {
       <div className="w-full max-w-sm relative z-10">
         {/* Logo + Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 mb-4 shadow-xl shadow-black/20">
-            <Image src="/bindu-logo.png" alt="Bindu" width={40} height={40} className="rounded-lg" />
+          <div className="flex justify-center mb-3">
+            <Image src="/bindu-logo-white.png" alt="Bindu Premium" width={200} height={65} className="object-contain drop-shadow-lg" priority />
           </div>
-          <h1 className="text-2xl font-bold text-white">Bindu Premium</h1>
           <p className="text-sm text-white/50 mt-1">Salary Manager · Admin Login</p>
         </div>
 

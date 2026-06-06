@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Employee, Branch } from '@/types'
 import { toast } from 'sonner'
-import { Plus, Pencil, UserX, UserCheck, Users, Download, Upload, CheckCircle2, RefreshCw } from 'lucide-react'
+import { Plus, Pencil, UserX, UserCheck, Users, Download, Upload, CheckCircle2, RefreshCw, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -15,10 +15,13 @@ import { SearchFilter, type SortOption } from '@/components/shared/SearchFilter'
 import { downloadCSV } from '@/lib/csv'
 import { formatTaka } from '@/lib/calculations'
 import { downloadEmployeeTemplate, parseEmployeeSheet } from '@/lib/excel'
+import { EmployeeProfileModal } from '@/components/employees/EmployeeProfileModal'
 
 const EMPTY: Partial<Employee> = {
   employee_id: '', name: '', designation: '', branch_id: '',
   basic_salary: 0, yearly_leave_allowance: 12, conveyance: 1500, active: true,
+  mobile_number: '', date_of_birth: '', joining_date: '', address: '',
+  emergency_contact: '', blood_group: '', nid_number: '',
 }
 
 function getInitials(name: string) {
@@ -61,6 +64,7 @@ export default function EmployeesPage() {
   const [filterBranch, setFilterBranch] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortValue, setSortValue] = useState('name_asc')
+  const [viewingEmployee, setViewingEmployee] = useState<Employee | null>(null)
   const [uploading, setUploading] = useState(false)
   const [importResult, setImportResult] = useState<{ added: number; updated: number; skipped: number; fileName: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -98,6 +102,13 @@ export default function EmployeesPage() {
       yearly_leave_allowance: editing.yearly_leave_allowance ?? 12,
       conveyance: editing.conveyance ?? 1500,
       active: editing.active ?? true,
+      mobile_number: editing.mobile_number || null,
+      date_of_birth: editing.date_of_birth || null,
+      joining_date: editing.joining_date || null,
+      address: editing.address || null,
+      emergency_contact: editing.emergency_contact || null,
+      blood_group: editing.blood_group || null,
+      nid_number: editing.nid_number || null,
     }
     if (editing.id) {
       const { error } = await supabase.from('employees').update(payload).eq('id', editing.id)
@@ -373,10 +384,13 @@ export default function EmployeesPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => openEdit(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
+                    <button onClick={() => setViewingEmployee(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors" title="View profile">
+                      <Eye size={14} />
+                    </button>
+                    <button onClick={() => openEdit(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors" title="Edit">
                       <Pencil size={14} />
                     </button>
-                    <button onClick={() => toggleActive(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
+                    <button onClick={() => toggleActive(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors" title={emp.active ? 'Deactivate' : 'Activate'}>
                       {emp.active ? <UserX size={14} /> : <UserCheck size={14} />}
                     </button>
                   </div>
@@ -397,7 +411,7 @@ export default function EmployeesPage() {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg">{editing.id ? 'Edit Employee' : 'Add New Employee'}</DialogTitle>
           </DialogHeader>
@@ -442,11 +456,44 @@ export default function EmployeesPage() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700">Yearly Leave</Label>
-                  <Input type="number" value={editing.yearly_leave_allowance ?? 1} onChange={e => setEditing(p => ({ ...p, yearly_leave_allowance: +e.target.value }))} className="mt-1" />
+                  <Input type="number" value={editing.yearly_leave_allowance ?? 12} onChange={e => setEditing(p => ({ ...p, yearly_leave_allowance: +e.target.value }))} className="mt-1" />
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-gray-700">Conveyance (৳)</Label>
                   <Input type="number" value={editing.conveyance ?? 1500} onChange={e => setEditing(p => ({ ...p, conveyance: +e.target.value }))} className="mt-1" />
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-gray-100 pt-4 space-y-3">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Additional Info</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Mobile Number</Label>
+                  <Input value={editing.mobile_number ?? ''} onChange={e => setEditing(p => ({ ...p, mobile_number: e.target.value }))} placeholder="e.g. 01711-000000" className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Blood Group</Label>
+                  <Input value={editing.blood_group ?? ''} onChange={e => setEditing(p => ({ ...p, blood_group: e.target.value }))} placeholder="e.g. B+" className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Date of Birth</Label>
+                  <Input value={editing.date_of_birth ?? ''} onChange={e => setEditing(p => ({ ...p, date_of_birth: e.target.value }))} placeholder="e.g. 01/01/1990" className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Joining Date</Label>
+                  <Input value={editing.joining_date ?? ''} onChange={e => setEditing(p => ({ ...p, joining_date: e.target.value }))} placeholder="e.g. 01/01/2022" className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">NID Number</Label>
+                  <Input value={editing.nid_number ?? ''} onChange={e => setEditing(p => ({ ...p, nid_number: e.target.value }))} placeholder="National ID" className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Emergency Contact</Label>
+                  <Input value={editing.emergency_contact ?? ''} onChange={e => setEditing(p => ({ ...p, emergency_contact: e.target.value }))} placeholder="Family contact number" className="mt-1" />
+                </div>
+                <div className="col-span-2">
+                  <Label className="text-sm font-medium text-gray-700">Address</Label>
+                  <Input value={editing.address ?? ''} onChange={e => setEditing(p => ({ ...p, address: e.target.value }))} placeholder="Full address" className="mt-1" />
                 </div>
               </div>
             </div>
@@ -458,6 +505,12 @@ export default function EmployeesPage() {
         </DialogContent>
       </Dialog>
 
+      <EmployeeProfileModal
+        employee={viewingEmployee}
+        open={!!viewingEmployee}
+        onOpenChange={open => { if (!open) setViewingEmployee(null) }}
+        onEdit={() => viewingEmployee && openEdit(viewingEmployee)}
+      />
     </div>
   )
 }

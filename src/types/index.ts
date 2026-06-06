@@ -16,6 +16,15 @@ export type Employee = {
   conveyance: number
   active: boolean
   created_at: string
+  mobile_number?: string
+  date_of_birth?: string
+  joining_date?: string
+  address?: string
+  emergency_contact?: string
+  blood_group?: string
+  nid_number?: string
+  old_id_card?: string
+  photo_url?: string
 }
 
 export type SalaryRecord = {

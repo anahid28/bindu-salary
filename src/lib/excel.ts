@@ -22,6 +22,15 @@ export type EmployeeSheetRow = {
   basic_salary: number
   conveyance: number
   yearly_leave_allowance: number
+  mobile_number?: string
+  date_of_birth?: string
+  joining_date?: string
+  address?: string
+  emergency_contact?: string
+  blood_group?: string
+  nid_number?: string
+  old_id_card?: string
+  photo_url?: string
 }
 
 /**
@@ -119,6 +128,9 @@ export function parseEmployeeSheet(
 
           if (!empId && !name) return // skip blank rows
 
+          const nidRaw = String(n['national id'] ?? n['nid'] ?? n['nid number'] ?? n['national id number (nid number)'] ?? '').trim()
+          const nidVal = ['nai', 'na', 'n/a', ''].includes(nidRaw.toLowerCase()) ? undefined : nidRaw
+
           rows.push({
             employee_id: empId,
             name,
@@ -138,6 +150,15 @@ export function parseEmployeeSheet(
               n['yearly leave'] ?? n['yearly_leave'] ?? n['leave'] ??
               n['leave allowance'] ?? n['annual leave'] ?? 0
             ) || 0,
+            mobile_number: String(n['mobile'] ?? n['mobile number'] ?? n['phone'] ?? n['contact'] ?? '').trim() || undefined,
+            date_of_birth: String(n['date of birth'] ?? n['dob'] ?? n['birth date'] ?? '').trim() || undefined,
+            joining_date: String(n['joining date'] ?? n['join date'] ?? n['date of joining'] ?? '').trim() || undefined,
+            address: String(n['address'] ?? '').trim() || undefined,
+            emergency_contact: String(n['emergency contact'] ?? n['emergency contact (family)'] ?? n['emergency'] ?? '').trim() || undefined,
+            blood_group: String(n['blood group'] ?? n['blood'] ?? '').trim() || undefined,
+            nid_number: nidVal,
+            old_id_card: String(n['old id'] ?? n['old id card'] ?? n['office id card number'] ?? '').trim() || undefined,
+            photo_url: String(n['photo'] ?? n['photo url'] ?? n['passport size photo'] ?? '').trim() || undefined,
           })
         })
 

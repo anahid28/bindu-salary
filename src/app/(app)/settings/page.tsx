@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Settings } from '@/types'
 import { toast } from 'sonner'
-import { Save } from 'lucide-react'
+import { Eye, EyeOff, KeyRound, Save, UserPlus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,6 +16,18 @@ export default function SettingsPage() {
     payment_by: '',
   })
   const [saving, setSaving] = useState(false)
+
+  // Change password
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showNewPw, setShowNewPw] = useState(false)
+  const [changingPw, setChangingPw] = useState(false)
+
+  // Add admin
+  const [adminEmail, setAdminEmail] = useState('')
+  const [adminPassword, setAdminPassword] = useState('')
+  const [showAdminPw, setShowAdminPw] = useState(false)
+  const [addingAdmin, setAddingAdmin] = useState(false)
 
   useEffect(() => {
     supabase.from('settings').select('*').limit(1).single().then(({ data }) => {
@@ -44,6 +56,32 @@ export default function SettingsPage() {
     setSaving(false)
   }
 
+  async function changePassword(e: React.FormEvent) {
+    e.preventDefault()
+    if (newPassword !== confirmPassword) { toast.error('Passwords do not match'); return }
+    if (newPassword.length < 6) { toast.error('Password must be at least 6 characters'); return }
+    setChangingPw(true)
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) toast.error(error.message)
+    else { toast.success('Password updated'); setNewPassword(''); setConfirmPassword('') }
+    setChangingPw(false)
+  }
+
+  async function addAdmin(e: React.FormEvent) {
+    e.preventDefault()
+    if (adminPassword.length < 6) { toast.error('Password must be at least 6 characters'); return }
+    setAddingAdmin(true)
+    const res = await fetch('/api/admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: adminEmail, password: adminPassword }),
+    })
+    const data = await res.json()
+    if (!res.ok) toast.error(data.error)
+    else { toast.success(`Admin ${data.email} created`); setAdminEmail(''); setAdminPassword('') }
+    setAddingAdmin(false)
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-lg mx-auto">
       <div className="mb-4 sm:mb-6">
@@ -70,6 +108,90 @@ export default function SettingsPage() {
             <Save size={15} />{saving ? 'Saving…' : 'Save Settings'}
           </Button>
         </div>
+      </div>
+
+      {/* Change Password */}
+      <div className="mt-6 bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <KeyRound size={16} className="text-gray-500" />
+          <h2 className="font-semibold text-gray-800">Change Password</h2>
+        </div>
+        <form onSubmit={changePassword} className="space-y-4">
+          <div>
+            <Label>New Password</Label>
+            <div className="relative mt-1">
+              <Input
+                type={showNewPw ? 'text' : 'password'}
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                placeholder="Min. 6 characters"
+                className="pr-10"
+                required
+              />
+              <button type="button" onClick={() => setShowNewPw(p => !p)} tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                {showNewPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+          </div>
+          <div>
+            <Label>Confirm Password</Label>
+            <div className="relative mt-1">
+              <Input
+                type={showNewPw ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter new password"
+                className="pr-10"
+                required
+              />
+            </div>
+          </div>
+          <Button type="submit" disabled={changingPw} className="w-full gap-2">
+            <KeyRound size={14} />{changingPw ? 'Updating…' : 'Update Password'}
+          </Button>
+        </form>
+      </div>
+
+      {/* Add Admin */}
+      <div className="mt-4 bg-white rounded-xl border border-gray-200 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <UserPlus size={16} className="text-gray-500" />
+          <h2 className="font-semibold text-gray-800">Add Admin</h2>
+        </div>
+        <form onSubmit={addAdmin} className="space-y-4">
+          <div>
+            <Label>Email</Label>
+            <Input
+              type="email"
+              value={adminEmail}
+              onChange={e => setAdminEmail(e.target.value)}
+              placeholder="newadmin@bindupremium.com"
+              className="mt-1"
+              required
+            />
+          </div>
+          <div>
+            <Label>Temporary Password</Label>
+            <div className="relative mt-1">
+              <Input
+                type={showAdminPw ? 'text' : 'password'}
+                value={adminPassword}
+                onChange={e => setAdminPassword(e.target.value)}
+                placeholder="Min. 6 characters"
+                className="pr-10"
+                required
+              />
+              <button type="button" onClick={() => setShowAdminPw(p => !p)} tabIndex={-1}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                {showAdminPw ? <EyeOff size={15} /> : <Eye size={15} />}
+              </button>
+            </div>
+          </div>
+          <Button type="submit" disabled={addingAdmin} className="w-full gap-2">
+            <UserPlus size={14} />{addingAdmin ? 'Creating…' : 'Create Admin'}
+          </Button>
+        </form>
       </div>
 
       <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">

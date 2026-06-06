@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Lock, Mail } from 'lucide-react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -30,19 +31,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-[#1a2340] via-[#1e2a4a] to-[#243052] flex items-center justify-center p-4">
+      {/* Subtle background pattern */}
+      <div className="fixed inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
+          backgroundSize: '40px 40px',
+        }} />
+      </div>
+
+      <div className="w-full max-w-sm relative z-10">
+        {/* Logo + Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#1a2340] mb-4">
-            <Lock size={24} className="text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 mb-4 shadow-xl shadow-black/20">
+            <Image src="/bindu-logo.png" alt="Bindu" width={40} height={40} className="rounded-lg" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Bindu Premium</h1>
-          <p className="text-sm text-gray-500 mt-1">Salary Manager · Admin Login</p>
+          <h1 className="text-2xl font-bold text-white">Bindu Premium</h1>
+          <p className="text-sm text-white/50 mt-1">Salary Manager · Admin Login</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl shadow-2xl shadow-black/30 border border-white/10 p-6">
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
@@ -55,7 +64,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="admin@bindupremium.com"
-                  className="pl-9"
+                  className="pl-9 h-11 transition-shadow focus:ring-2 focus:ring-[#1a2340]/20"
                   required
                 />
               </div>
@@ -71,25 +80,34 @@ export default function LoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="pl-9"
+                  className="pl-9 h-11 transition-shadow focus:ring-2 focus:ring-[#1a2340]/20"
                   required
                 />
               </div>
             </div>
 
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2.5 animate-[fadeIn_0.2s_ease-out]">
                 {error}
               </p>
             )}
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign In'}
+            <Button
+              type="submit"
+              className="w-full h-11 bg-[#1a2340] hover:bg-[#243052] text-white font-medium transition-all hover:shadow-lg hover:shadow-[#1a2340]/20"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Signing in…
+                </span>
+              ) : 'Sign In'}
             </Button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-5">
+        <p className="text-center text-xs text-white/30 mt-6">
           Bindu Premium · Internal Use Only
         </p>
       </div>

@@ -84,3 +84,14 @@ export const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December'
 ]
+
+export type SalaryUploadLog = {
+  id: string
+  month: number
+  year: number
+  file_name: string
+  records_imported: number
+  records_updated: number
+  source: string
+  uploaded_at: string
+}

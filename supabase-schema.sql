@@ -1,4 +1,5 @@
 -- Run this in Supabase SQL Editor to set up your database
+-- If tables already exist, just run the RLS section at the bottom
 
 create table if not exists branches (
   id uuid primary key default gen_random_uuid(),
@@ -55,9 +56,57 @@ create table if not exists settings (
   updated_at timestamptz default now()
 );
 
+create table if not exists salary_upload_log (
+  id uuid primary key default gen_random_uuid(),
+  month int not null check (month between 1 and 12),
+  year int not null,
+  file_name text not null default '',
+  records_imported int not null default 0,
+  records_updated int not null default 0,
+  source text not null default 'excel',
+  uploaded_at timestamptz default now(),
+  unique(month, year)
+);
+
 -- Insert default settings
 insert into settings (company_name, generated_by) values ('Bindu Premium', 'Nahid')
 on conflict do nothing;
+
+-- =============================================
+-- RLS POLICIES (Run this if data is not showing)
+-- =============================================
+
+-- Enable RLS on all tables
+alter table branches enable row level security;
+alter table employees enable row level security;
+alter table salary_records enable row level security;
+alter table eid_records enable row level security;
+alter table settings enable row level security;
+alter table salary_upload_log enable row level security;
+
+-- branches: allow all for anon + authenticated
+drop policy if exists branches_all on branches;
+create policy branches_all on branches for all to anon, authenticated using (true) with check (true);
+
+-- employees: allow all for anon + authenticated
+drop policy if exists employees_all on employees;
+create policy employees_all on employees for all to anon, authenticated using (true) with check (true);
+
+-- salary_records: allow all for anon + authenticated
+drop policy if exists salary_records_all on salary_records;
+create policy salary_records_all on salary_records for all to anon, authenticated using (true) with check (true);
+
+-- eid_records: allow all for anon + authenticated
+drop policy if exists eid_records_all on eid_records;
+create policy eid_records_all on eid_records for all to anon, authenticated using (true) with check (true);
+
+-- settings: allow all for anon + authenticated
+drop policy if exists settings_all on settings;
+create policy settings_all on settings for all to anon, authenticated using (true) with check (true);
+
+-- salary_upload_log: allow all for anon + authenticated
+drop policy if exists salary_upload_log_all on salary_upload_log;
+create policy salary_upload_log_all on salary_upload_log for all to anon, authenticated using (true) with check (true);
 
 -- Seed branches from existing data
 insert into branches (name) values

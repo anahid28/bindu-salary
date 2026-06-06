@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-gray-50`}>
+    <html lang="en" data-scroll-behavior="smooth">
+      <body className={`${inter.className} bg-gray-50 scrollbar-thin`}>
         {children}
         <Toaster richColors position="top-right" />
       </body>

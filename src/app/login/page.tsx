@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
-import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -45,7 +44,8 @@ export default function LoginPage() {
         {/* Logo + Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-3">
-            <Image src="/bindu-logo-white.png" alt="Bindu Premium" width={200} height={65} className="object-contain drop-shadow-lg" priority />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/bindu-logo-white.png" alt="Bindu Premium" className="h-16 w-auto drop-shadow-lg" />
           </div>
           <p className="text-sm text-white/50 mt-1">Salary Manager · Admin Login</p>
         </div>

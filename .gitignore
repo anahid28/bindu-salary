@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Migration scripts (contain credentials)
+setup-db.mjs
+migrate.mjs

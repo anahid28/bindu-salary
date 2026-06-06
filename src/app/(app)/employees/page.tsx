@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { SearchFilter, type SortOption } from '@/components/shared/SearchFilter'
 import { downloadCSV } from '@/lib/csv'
 import { formatTaka } from '@/lib/calculations'
-import { downloadEmployeeTemplate, parseEmployeeSheet, type EmployeeSheetRow } from '@/lib/excel'
+import { downloadEmployeeTemplate, parseEmployeeSheet } from '@/lib/excel'
 
 const EMPTY: Partial<Employee> = {
   employee_id: '', name: '', designation: '', branch_id: '',
@@ -457,6 +457,7 @@ export default function EmployeesPage() {
           </div>
         </DialogContent>
       </Dialog>
+
     </div>
   )
 }

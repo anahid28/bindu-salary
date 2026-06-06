@@ -5,8 +5,8 @@ const WORKING_DAYS = 26
 export function calcSalary(employee: Employee, record: SalaryRecord): SalaryCalc {
   const daily_rate = employee.basic_salary / WORKING_DAYS
 
-  // Leave deduction: only days beyond yearly allowance
-  const deductable_leave = Math.max(0, record.leave_days_taken - employee.yearly_leave_allowance)
+  // Leave deduction: only days beyond yearly allowance, minus any leave adjustment
+  const deductable_leave = Math.max(0, record.leave_days_taken - employee.yearly_leave_allowance - (record.leave_adjustment ?? 0))
   const leave_deduction = deductable_leave * daily_rate
 
   // Late deduction: every 3 late days = 1 day salary
@@ -15,13 +15,16 @@ export function calcSalary(employee: Employee, record: SalaryRecord): SalaryCalc
   // OT: 1 day = 1 day salary
   const ot_addition = record.ot_days * daily_rate
 
+  // Use monthly conveyance override if set, else employee default
+  const conveyance = record.conveyance ?? employee.conveyance
+
   const net_payable =
     employee.basic_salary
     - record.advance_deducted
     - leave_deduction
     - late_deduction
     + ot_addition
-    + employee.conveyance
+    + conveyance
     + record.attendance_bonus
 
   return {
@@ -32,7 +35,7 @@ export function calcSalary(employee: Employee, record: SalaryRecord): SalaryCalc
     leave_deduction,
     late_deduction,
     ot_addition,
-    conveyance: employee.conveyance,
+    conveyance,
     attendance_bonus: record.attendance_bonus,
     net_payable: Math.round(net_payable),
     daily_rate,

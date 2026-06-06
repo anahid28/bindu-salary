@@ -7,16 +7,18 @@ import type { Employee, Branch, SalaryRecord, Settings, SalaryCalc } from '@/typ
 import { MONTHS } from '@/types'
 import { calcSalary, formatTaka } from '@/lib/calculations'
 import { toast } from 'sonner'
-import { Download, Printer } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { SlipPreviewButton } from '@/components/salary/SlipPreviewModal'
 
 function SlipsContent() {
   const params = useSearchParams()
   const now = new Date()
+  const currentYear = now.getFullYear()
   const [month, setMonth] = useState(+(params.get('month') ?? now.getMonth() + 1))
-  const [year, setYear] = useState(+(params.get('year') ?? now.getFullYear()))
+  const [year, setYear] = useState(+(params.get('year') ?? currentYear))
   const [branches, setBranches] = useState<Branch[]>([])
   const [selectedBranch, setSelectedBranch] = useState<string>('all')
   const [calcsByBranch, setCalcsByBranch] = useState<Map<string, SalaryCalc[]>>(new Map())
@@ -35,7 +37,8 @@ function SlipsContent() {
     for (const emp of (emps ?? []) as Employee[]) {
       const rec = recMap.get(emp.id) ?? {
         id: '', employee_id: emp.id, month, year,
-        advance_deducted: 0, leave_days_taken: 0, late_days: 0, ot_days: 0, attendance_bonus: 0, notes: '', created_at: '',
+        advance_deducted: 0, leave_days_taken: 0, leave_adjustment: 0,
+        late_days: 0, ot_days: 0, attendance_bonus: 0, notes: '', created_at: '',
       } as SalaryRecord
       const calc = calcSalary(emp, rec)
       const bid = emp.branch_id ?? 'unassigned'
@@ -62,7 +65,7 @@ function SlipsContent() {
         paymentBy: settings?.payment_by ?? '',
         companyName: settings?.company_name ?? 'Bindu Premium',
       }, `${branchName}-${MONTHS[month - 1]}-${year}.pdf`)
-    } catch (e) {
+    } catch {
       toast.error('PDF generation failed')
     }
     setLoading(false)
@@ -81,7 +84,7 @@ function SlipsContent() {
         paymentBy: settings?.payment_by ?? '',
         companyName: settings?.company_name ?? 'Bindu Premium',
       }, `All-Branches-${MONTHS[month - 1]}-${year}.pdf`)
-    } catch (e) {
+    } catch {
       toast.error('PDF generation failed')
     }
     setLoading(false)
@@ -92,6 +95,7 @@ function SlipsContent() {
     : branches.filter(b => b.id === selectedBranch)
 
   const totalPayable = Array.from(calcsByBranch.values()).flat().reduce((s, c) => s + c.net_payable, 0)
+  const yearOptions = [currentYear - 1, currentYear, currentYear + 1]
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
@@ -112,7 +116,7 @@ function SlipsContent() {
           <Select value={String(year)} onValueChange={v => setYear(+(v ?? year))}>
             <SelectTrigger className="w-24 bg-white"><SelectValue /></SelectTrigger>
             <SelectContent>
-              {[2024, 2025, 2026, 2027].map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+              {yearOptions.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
             </SelectContent>
           </Select>
           <Button onClick={downloadAll} disabled={loading} className="gap-2">
@@ -163,6 +167,7 @@ function SlipsContent() {
                     <th className="text-right px-4 py-2.5 font-medium text-gray-500 text-xs">OT</th>
                     <th className="text-right px-4 py-2.5 font-medium text-gray-500 text-xs">Conveyance</th>
                     <th className="text-right px-4 py-2.5 font-semibold text-gray-700 text-xs">Net Payable</th>
+                    <th className="px-2 py-2.5 text-xs w-8" />
                   </tr>
                 </thead>
                 <tbody>
@@ -174,15 +179,18 @@ function SlipsContent() {
                       </td>
                       <td className="px-4 py-2.5 text-right text-gray-600">{formatTaka(calc.basic_salary)}</td>
                       <td className="px-4 py-2.5 text-right text-red-500">{calc.advance_deducted > 0 ? `-${formatTaka(calc.advance_deducted)}` : '—'}</td>
-                      <td className="px-4 py-2.5 text-right text-red-500">{calc.leave_deduction > 0 ? `-${formatTaka(calc.leave_deduction)}` : '—'}</td>
-                      <td className="px-4 py-2.5 text-right text-red-500">{calc.late_deduction > 0 ? `-${formatTaka(calc.late_deduction)}` : '—'}</td>
-                      <td className="px-4 py-2.5 text-right text-green-600">{calc.ot_addition > 0 ? `+${formatTaka(calc.ot_addition)}` : '—'}</td>
+                      <td className="px-4 py-2.5 text-right text-red-500">{calc.leave_deduction > 0 ? `-${formatTaka(Math.round(calc.leave_deduction))}` : '—'}</td>
+                      <td className="px-4 py-2.5 text-right text-red-500">{calc.late_deduction > 0 ? `-${formatTaka(Math.round(calc.late_deduction))}` : '—'}</td>
+                      <td className="px-4 py-2.5 text-right text-green-600">{calc.ot_addition > 0 ? `+${formatTaka(Math.round(calc.ot_addition))}` : '—'}</td>
                       <td className="px-4 py-2.5 text-right text-green-600">+{formatTaka(calc.conveyance)}</td>
                       <td className="px-4 py-2.5 text-right font-bold text-blue-700">{formatTaka(calc.net_payable)}</td>
+                      <td className="px-2 py-2.5">
+                        <SlipPreviewButton calc={calc} month={month} year={year} settings={settings} />
+                      </td>
                     </tr>
                   ))}
                   {calcs.length === 0 && (
-                    <tr><td colSpan={8} className="text-center py-6 text-gray-400 text-xs">No employees in this branch</td></tr>
+                    <tr><td colSpan={9} className="text-center py-6 text-gray-400 text-xs">No employees in this branch</td></tr>
                   )}
                 </tbody>
               </table>

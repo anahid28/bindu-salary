@@ -26,9 +26,11 @@ export type SalaryRecord = {
   year: number
   advance_deducted: number
   leave_days_taken: number
+  leave_adjustment: number
   late_days: number
   ot_days: number
   attendance_bonus: number
+  conveyance?: number
   notes: string
   created_at: string
 }

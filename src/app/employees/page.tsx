@@ -15,7 +15,7 @@ import { formatTaka } from '@/lib/calculations'
 
 const EMPTY: Partial<Employee> = {
   employee_id: '', name: '', designation: '', branch_id: '',
-  basic_salary: 0, yearly_leave_allowance: 1, conveyance: 1500, active: true,
+  basic_salary: 0, yearly_leave_allowance: 12, conveyance: 1500, active: true,
 }
 
 export default function EmployeesPage() {
@@ -56,7 +56,7 @@ export default function EmployeesPage() {
       designation: editing.designation,
       branch_id: editing.branch_id,
       basic_salary: editing.basic_salary ?? 0,
-      yearly_leave_allowance: editing.yearly_leave_allowance ?? 1,
+      yearly_leave_allowance: editing.yearly_leave_allowance ?? 12,
       conveyance: editing.conveyance ?? 1500,
       active: editing.active ?? true,
     }

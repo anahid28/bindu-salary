@@ -242,14 +242,13 @@ function Slip({ calc, month, year, generatedBy }: {
 }) {
   const { employee: emp, record, basic_salary, advance_deducted,
           leave_deduction, late_deduction, ot_addition, conveyance,
-          attendance_bonus, net_payable, daily_rate } = calc
+          attendance_bonus, net_payable } = calc
 
   const monthName = `${MONTHS[month - 1]} ${year}`
 
   // Running subtotals
   const sub1 = basic_salary - advance_deducted                          // after advance
-  const deductible_leave = Math.max(0, (record.leave_days_taken ?? 0) - emp.yearly_leave_allowance)
-  const late_cut_days    = Math.floor((record.late_days ?? 0) / 3)
+  const deductible_leave = Math.max(0, (record.leave_days_taken ?? 0) - emp.yearly_leave_allowance - (record.leave_adjustment ?? 0))
   const sub2 = sub1 - leave_deduction - late_deduction                  // after leave & late
   const sub3 = sub2 + attendance_bonus                                  // after attendance bonus
   // sub3 + conveyance + ot = net_payable

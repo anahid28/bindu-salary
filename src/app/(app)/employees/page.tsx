@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Employee, Branch } from '@/types'
 import { toast } from 'sonner'
-import { Plus, Pencil, UserX, UserCheck, Users, Download, Upload, CheckCircle2, RefreshCw, Eye } from 'lucide-react'
+import { Plus, Pencil, UserX, UserCheck, Users, Download, Upload, CheckCircle2, RefreshCw, Eye, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -65,6 +65,7 @@ export default function EmployeesPage() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [sortValue, setSortValue] = useState('name_asc')
   const [viewingEmployee, setViewingEmployee] = useState<Employee | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [importResult, setImportResult] = useState<{ added: number; updated: number; skipped: number; fileName: string } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -120,6 +121,19 @@ export default function EmployeesPage() {
       else { toast.success('Employee added'); setOpen(false); load() }
     }
     setLoading(false)
+  }
+
+  async function deleteEmployee(emp: Employee) {
+    const { count } = await supabase.from('salary_records').select('*', { count: 'exact', head: true }).eq('employee_id', emp.id)
+    if ((count ?? 0) > 0) {
+      toast.error(`Cannot delete — ${count} salary record${count !== 1 ? 's' : ''} exist. Deactivate instead.`)
+      setConfirmDeleteId(null)
+      return
+    }
+    const { error } = await supabase.from('employees').delete().eq('id', emp.id)
+    if (error) toast.error(error.message)
+    else { toast.success(`${emp.name} removed`); load() }
+    setConfirmDeleteId(null)
   }
 
   async function toggleActive(emp: Employee) {
@@ -383,17 +397,28 @@ export default function EmployeesPage() {
                   </Badge>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => setViewingEmployee(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors" title="View profile">
-                      <Eye size={14} />
-                    </button>
-                    <button onClick={() => openEdit(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors" title="Edit">
-                      <Pencil size={14} />
-                    </button>
-                    <button onClick={() => toggleActive(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors" title={emp.active ? 'Deactivate' : 'Activate'}>
-                      {emp.active ? <UserX size={14} /> : <UserCheck size={14} />}
-                    </button>
-                  </div>
+                  {confirmDeleteId === emp.id ? (
+                    <div className="flex items-center justify-end gap-1">
+                      <span className="text-xs text-red-600 font-medium mr-1">Delete?</span>
+                      <button onClick={() => deleteEmployee(emp)} className="px-2 py-1 rounded text-xs bg-red-600 text-white hover:bg-red-700 transition-colors">Yes</button>
+                      <button onClick={() => setConfirmDeleteId(null)} className="px-2 py-1 rounded text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">No</button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-end gap-1">
+                      <button onClick={() => setViewingEmployee(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors" title="View profile">
+                        <Eye size={14} />
+                      </button>
+                      <button onClick={() => openEdit(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors" title="Edit">
+                        <Pencil size={14} />
+                      </button>
+                      <button onClick={() => toggleActive(emp)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors" title={emp.active ? 'Deactivate' : 'Activate'}>
+                        {emp.active ? <UserX size={14} /> : <UserCheck size={14} />}
+                      </button>
+                      <button onClick={() => setConfirmDeleteId(emp.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" title="Delete permanently">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

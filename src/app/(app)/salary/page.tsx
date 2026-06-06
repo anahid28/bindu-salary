@@ -9,7 +9,7 @@ import { calcSalary, formatTaka } from '@/lib/calculations'
 import { downloadTemplate, parseSalarySheet } from '@/lib/excel'
 import { downloadCSV } from '@/lib/csv'
 import { toast } from 'sonner'
-import { Save, ChevronRight, Download, Upload, Users, CheckCircle2, Clock, CalendarDays, AlertCircle } from 'lucide-react'
+import { Save, ChevronRight, Download, Upload, Users, CheckCircle2, Clock, CalendarDays, AlertCircle, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -50,6 +50,8 @@ function SalaryContent() {
   const [uploadLog, setUploadLog] = useState<{ file_name: string; records_imported: number; uploaded_at: string } | null>(null)
   const [search, setSearch] = useState('')
   const [sortValue, setSortValue] = useState('name_asc')
+  const [confirmClearMonth, setConfirmClearMonth] = useState(false)
+  const [confirmDeleteRecId, setConfirmDeleteRecId] = useState<string | null>(null)
 
   async function load() {
     setPageLoading(true)
@@ -116,6 +118,30 @@ function SalaryContent() {
       setRows(prev => prev.map(r => ({ ...r, dirty: false })))
     }
     setSaving(false)
+  }
+
+  async function deleteRecord(row: Row) {
+    if (row.record.id) {
+      const { error } = await supabase.from('salary_records').delete().eq('id', row.record.id)
+      if (error) { toast.error(error.message); return }
+    }
+    setRows(prev => prev.map(r =>
+      r.employee.id === row.employee.id
+        ? { ...r, record: { employee_id: r.employee.id, month, year, advance_deducted: 0, leave_days_taken: 0, leave_adjustment: 0, late_days: 0, ot_days: 0, attendance_bonus: 0, conveyance: r.employee.conveyance, notes: '' }, dirty: false }
+        : r
+    ))
+    setConfirmDeleteRecId(null)
+    toast.success(`${row.employee.name}'s ${MONTHS[month - 1]} data cleared`)
+  }
+
+  async function clearMonth() {
+    const empIds = rows.map(r => r.employee.id)
+    const { error } = await supabase.from('salary_records').delete().eq('month', month).eq('year', year).in('employee_id', empIds)
+    if (error) { toast.error(error.message); return }
+    await supabase.from('salary_upload_log').delete().eq('month', month).eq('year', year)
+    setConfirmClearMonth(false)
+    toast.success(`All ${MONTHS[month - 1]} ${year} salary data cleared`)
+    load()
   }
 
   // Dirty count
@@ -268,6 +294,17 @@ function SalaryContent() {
           <Button variant="ghost" size="sm" onClick={() => router.push(`/feed?year=${year}`)} className="gap-1.5 text-xs text-gray-500">
             <CalendarDays size={14} />Feed
           </Button>
+          {confirmClearMonth ? (
+            <div className="flex items-center gap-1.5 border border-red-200 bg-red-50 rounded-lg px-2 py-1">
+              <span className="text-xs text-red-700 font-medium whitespace-nowrap">Clear all {MONTHS[month - 1]} data?</span>
+              <button onClick={clearMonth} className="px-2 py-0.5 rounded text-xs bg-red-600 text-white hover:bg-red-700">Yes</button>
+              <button onClick={() => setConfirmClearMonth(false)} className="px-2 py-0.5 rounded text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50">No</button>
+            </div>
+          ) : (
+            <button onClick={() => setConfirmClearMonth(true)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" title={`Clear all ${MONTHS[month - 1]} ${year} salary data`}>
+              <Trash2 size={15} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -343,6 +380,7 @@ function SalaryContent() {
                 </th>
                 <th className="text-right px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap hidden md:table-cell">Conveyance (৳)</th>
                 <th className="text-right px-3 py-3 font-semibold text-gray-700 bg-blue-50 whitespace-nowrap">Net Payable</th>
+                <th className="px-2 py-3 w-8" />
               </tr>
             </thead>
             <tbody>
@@ -389,12 +427,24 @@ function SalaryContent() {
                     <td className="px-3 py-2.5 text-right font-semibold text-blue-700 bg-blue-50/50 whitespace-nowrap">
                       {formatTaka(calc.net_payable)}
                     </td>
+                    <td className="px-2 py-2.5">
+                      {confirmDeleteRecId === row.employee.id ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <button onClick={() => deleteRecord(row)} className="w-6 h-5 rounded text-[10px] bg-red-600 text-white hover:bg-red-700 leading-none">✓</button>
+                          <button onClick={() => setConfirmDeleteRecId(null)} className="w-6 h-5 rounded text-[10px] bg-gray-100 text-gray-600 hover:bg-gray-200 leading-none">✕</button>
+                        </div>
+                      ) : (
+                        <button onClick={() => setConfirmDeleteRecId(row.employee.id)} className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 transition-colors" title="Clear this record">
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 )
               })}
               {displayed.length === 0 && (
                 <tr>
-                  <td colSpan={11} className="text-center py-16">
+                  <td colSpan={12} className="text-center py-16">
                     <Users size={32} className="mx-auto text-gray-300 mb-2" />
                     <p className="text-gray-400 text-sm">No employees found</p>
                     <p className="text-gray-300 text-xs mt-1">Try changing filters or add employees first</p>
@@ -418,6 +468,7 @@ function SalaryContent() {
                   <td className="px-3 py-3 text-right text-green-600">{formatTaka(Math.round(totals.bonus))}</td>
                   <td className="px-3 py-3 text-right text-green-600 hidden md:table-cell">{formatTaka(Math.round(totals.conveyance))}</td>
                   <td className="px-3 py-3 text-right font-bold text-blue-800 bg-blue-50 text-base">{formatTaka(Math.round(totals.net))}</td>
+                  <td className="px-2 py-3" />
                 </tr>
               </tfoot>
             )}

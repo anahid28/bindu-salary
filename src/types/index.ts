@@ -77,6 +77,7 @@ export type SalaryCalc = {
   attendance_bonus: number
   net_payable: number
   daily_rate: number
+  yearly_used_leave: number
 }
 
 export type EidCalc = {

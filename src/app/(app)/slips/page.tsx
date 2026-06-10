@@ -37,12 +37,17 @@ function SlipsContent() {
   }, [localSearch, search])
 
   async function load() {
-    const [{ data: emps }, { data: recs }, { data: brs }, { data: sett }] = await Promise.all([
+    const [{ data: emps }, { data: recs }, { data: brs }, { data: sett }, { data: yearRecs }] = await Promise.all([
       supabase.from('employees').select('*, branch:branches(*)').eq('active', true),
       supabase.from('salary_records').select('*').eq('month', month).eq('year', year),
       supabase.from('branches').select('*').order('name'),
       supabase.from('settings').select('*').limit(1).single(),
+      supabase.from('salary_records').select('employee_id, leave_days_taken').eq('year', year),
     ])
+    const leaveMap = new Map<string, number>()
+    for (const r of (yearRecs ?? [])) {
+      leaveMap.set(r.employee_id, (leaveMap.get(r.employee_id) ?? 0) + (r.leave_days_taken ?? 0))
+    }
     const recMap = new Map((recs ?? []).map(r => [r.employee_id, r as SalaryRecord]))
     const map = new Map<string, SalaryCalc[]>()
     for (const emp of (emps ?? []) as Employee[]) {
@@ -51,7 +56,8 @@ function SlipsContent() {
         advance_deducted: 0, leave_days_taken: 0, leave_adjustment: 0,
         late_days: 0, ot_days: 0, attendance_bonus: 0, notes: '', created_at: '',
       } as SalaryRecord
-      const calc = calcSalary(emp, rec)
+      const yearlyUsed = leaveMap.get(emp.id) ?? 0
+      const calc = calcSalary(emp, rec, yearlyUsed)
       const bid = emp.branch_id ?? 'unassigned'
       if (!map.has(bid)) map.set(bid, [])
       map.get(bid)!.push(calc)

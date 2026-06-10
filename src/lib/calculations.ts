@@ -2,7 +2,7 @@ import type { Employee, SalaryRecord, EidRecord, SalaryCalc, EidCalc } from '@/t
 
 const WORKING_DAYS = 26
 
-export function calcSalary(employee: Employee, record: SalaryRecord): SalaryCalc {
+export function calcSalary(employee: Employee, record: SalaryRecord, yearly_used_leave: number = 0): SalaryCalc {
   const daily_rate = employee.basic_salary / WORKING_DAYS
 
   // Leave deduction: only days beyond yearly allowance, minus any leave adjustment
@@ -39,6 +39,7 @@ export function calcSalary(employee: Employee, record: SalaryRecord): SalaryCalc
     attendance_bonus: record.attendance_bonus,
     net_payable: Math.round(net_payable),
     daily_rate,
+    yearly_used_leave,
   }
 }
 

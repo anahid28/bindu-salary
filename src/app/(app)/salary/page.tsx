@@ -364,11 +364,10 @@ function SalaryContent() {
                 <th className="text-right px-3 py-3 font-medium text-gray-600 w-24 whitespace-nowrap">Advance (৳)</th>
                 <th className="text-right px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap">
                   <div>Leave (days)</div>
-                  <div className="text-xs font-normal text-gray-400">Used / Left</div>
                 </th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 w-24 whitespace-nowrap hidden md:table-cell">
+                <th className="text-right px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap hidden md:table-cell">
                   <div>Leave Adj.</div>
-                  <div className="text-xs font-normal text-gray-400">(±days)</div>
+                  <div className="text-xs font-normal text-gray-400">(Used/Left)</div>
                 </th>
                 <th className="text-right px-3 py-3 font-medium text-gray-600 w-24 whitespace-nowrap">Late (days)</th>
                 <th className="text-right px-3 py-3 font-medium text-gray-600 w-24 whitespace-nowrap">OT (days)</th>
@@ -379,6 +378,7 @@ function SalaryContent() {
                   </div>
                 </th>
                 <th className="text-right px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap hidden md:table-cell">Conveyance (৳)</th>
+                <th className="text-left px-3 py-3 font-medium text-gray-600 w-48 whitespace-nowrap hidden lg:table-cell">Notes</th>
                 <th className="text-right px-3 py-3 font-semibold text-gray-700 bg-blue-50 whitespace-nowrap">Net Payable</th>
                 <th className="px-2 py-3 w-8" />
               </tr>
@@ -402,15 +402,15 @@ function SalaryContent() {
                       <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-8 text-sm w-24" />
                     </td>
                     <td className="px-3 py-2.5">
+                      <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-8 text-sm w-20 ml-auto" />
+                    </td>
+                    <td className="px-3 py-2.5 hidden md:table-cell">
                       <div className="flex flex-col items-end gap-1">
-                        <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-8 text-sm w-20" />
-                        <span className={`text-xs ${yearlyRemaining < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                        <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-8 text-sm w-20 ml-auto" />
+                        <span className={`text-xs whitespace-nowrap ${yearlyRemaining < 0 ? 'text-red-500' : 'text-gray-400'}`}>
                           {yearlyUsed}d used · {yearlyRemaining}d left
                         </span>
                       </div>
-                    </td>
-                    <td className="px-3 py-2.5 hidden md:table-cell">
-                      <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-8 text-sm w-20" />
                     </td>
                     <td className="px-3 py-2.5">
                       <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-8 text-sm w-20" />
@@ -422,7 +422,10 @@ function SalaryContent() {
                       <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} />
                     </td>
                     <td className="px-3 py-2.5 hidden md:table-cell">
-                      <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-8 text-sm w-24" />
+                      <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-8 text-sm w-24 ml-auto" />
+                    </td>
+                    <td className="px-3 py-2.5 hidden lg:table-cell">
+                      <Input type="text" value={rec.notes ?? ''} onChange={e => update(row.employee.id, 'notes', e.target.value)} placeholder="Note..." className="h-8 text-sm w-full" />
                     </td>
                     <td className="px-3 py-2.5 text-right font-semibold text-blue-700 bg-blue-50/50 whitespace-nowrap">
                       {formatTaka(calc.net_payable)}
@@ -467,6 +470,7 @@ function SalaryContent() {
                   <td className="px-3 py-3 text-right text-green-600">{formatTaka(Math.round(totals.ot))}</td>
                   <td className="px-3 py-3 text-right text-green-600">{formatTaka(Math.round(totals.bonus))}</td>
                   <td className="px-3 py-3 text-right text-green-600 hidden md:table-cell">{formatTaka(Math.round(totals.conveyance))}</td>
+                  <td className="px-3 py-3 hidden lg:table-cell" />
                   <td className="px-3 py-3 text-right font-bold text-blue-800 bg-blue-50 text-base">{formatTaka(Math.round(totals.net))}</td>
                   <td className="px-2 py-3" />
                 </tr>

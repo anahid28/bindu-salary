@@ -144,10 +144,8 @@ function SalaryContent() {
     load()
   }
 
-  // Dirty count
   const dirtyCount = rows.filter(r => r.dirty).length
 
-  // Filtered + sorted
   const displayed = useMemo(() => {
     let list = filterBranch === 'all' ? [...rows] : rows.filter(r => r.employee.branch_id === filterBranch)
     if (search) {
@@ -172,7 +170,6 @@ function SalaryContent() {
     return list
   }, [rows, filterBranch, search, sortValue])
 
-  // Footer totals
   const totals = useMemo(() => {
     let advance = 0, leave = 0, late = 0, ot = 0, bonus = 0, conveyance = 0, net = 0
     displayed.forEach(row => {
@@ -256,62 +253,77 @@ function SalaryContent() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-full mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Salary Processing</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Input monthly data for each employee</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <Select value={String(month)} onValueChange={v => setMonth(+(v ?? month))}>
-            <SelectTrigger className="w-36 bg-white"><SelectValue /></SelectTrigger>
-            <SelectContent>{MONTHS.map((m, i) => <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>)}</SelectContent>
-          </Select>
-          <Select value={String(year)} onValueChange={v => setYear(+(v ?? year))}>
-            <SelectTrigger className="w-24 bg-white"><SelectValue /></SelectTrigger>
-            <SelectContent>{yearOptions.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
-          </Select>
-          <div className="flex items-center gap-2 border-l border-gray-200 pl-2 sm:pl-3 ml-0 sm:ml-1">
-            <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="gap-1.5 text-xs">
-              <Download size={14} />Template
-            </Button>
-            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="hidden" />
-            <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="gap-1.5 text-xs">
-              <Upload size={14} />{uploading ? 'Importing…' : 'Upload'}
-            </Button>
+
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3 mb-4 sm:mb-6">
+        {/* Title row */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Salary Processing</h1>
+            <p className="text-gray-500 text-sm mt-0.5">Input monthly data for each employee</p>
           </div>
-          <Button onClick={saveAll} disabled={saving || dirtyCount === 0} className="gap-2 relative">
-            <Save size={15} />{saving ? 'Saving…' : 'Save All'}
+          {/* Period selectors always visible */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Select value={String(month)} onValueChange={v => setMonth(+(v ?? month))}>
+              <SelectTrigger className="w-36 bg-white"><SelectValue /></SelectTrigger>
+              <SelectContent>{MONTHS.map((m, i) => <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>)}</SelectContent>
+            </Select>
+            <Select value={String(year)} onValueChange={v => setYear(+(v ?? year))}>
+              <SelectTrigger className="w-24 bg-white"><SelectValue /></SelectTrigger>
+              <SelectContent>{yearOptions.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Action row */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* File actions */}
+          <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="gap-1.5 text-xs">
+            <Download size={14} />Template
+          </Button>
+          <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="hidden" />
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="gap-1.5 text-xs">
+            <Upload size={14} />{uploading ? 'Importing…' : 'Upload'}
+          </Button>
+
+          <div className="w-px h-6 bg-gray-200 mx-1" />
+
+          {/* Primary actions */}
+          <Button onClick={saveAll} disabled={saving || dirtyCount === 0} size="sm" className="gap-2 relative">
+            <Save size={14} />{saving ? 'Saving…' : 'Save All'}
             {dirtyCount > 0 && !saving && (
-              <span className="absolute -top-1.5 -right-1.5 bg-amber-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 bg-amber-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
                 {dirtyCount > 99 ? '99+' : dirtyCount}
               </span>
             )}
           </Button>
-          <Button variant="outline" onClick={() => router.push(`/slips?month=${month}&year=${year}`)} className="gap-2">
-            View Slips <ChevronRight size={15} />
+          <Button variant="outline" size="sm" onClick={() => router.push(`/slips?month=${month}&year=${year}`)} className="gap-1.5">
+            View Slips <ChevronRight size={14} />
           </Button>
           <Button variant="ghost" size="sm" onClick={() => router.push(`/feed?year=${year}`)} className="gap-1.5 text-xs text-gray-500">
             <CalendarDays size={14} />Feed
           </Button>
-          {confirmClearMonth ? (
-            <div className="flex items-center gap-1.5 border border-red-200 bg-red-50 rounded-lg px-2 py-1">
-              <span className="text-xs text-red-700 font-medium whitespace-nowrap">Clear all {MONTHS[month - 1]} data?</span>
-              <button onClick={clearMonth} className="px-2 py-0.5 rounded text-xs bg-red-600 text-white hover:bg-red-700">Yes</button>
-              <button onClick={() => setConfirmClearMonth(false)} className="px-2 py-0.5 rounded text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50">No</button>
-            </div>
-          ) : (
-            <button onClick={() => setConfirmClearMonth(true)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" title={`Clear all ${MONTHS[month - 1]} ${year} salary data`}>
-              <Trash2 size={15} />
-            </button>
-          )}
+
+          <div className="ml-auto">
+            {confirmClearMonth ? (
+              <div className="flex items-center gap-1.5 border border-red-200 bg-red-50 rounded-lg px-2 py-1">
+                <span className="text-xs text-red-700 font-medium whitespace-nowrap">Clear all {MONTHS[month - 1]}?</span>
+                <button onClick={clearMonth} className="px-2 py-0.5 rounded text-xs bg-red-600 text-white hover:bg-red-700">Yes</button>
+                <button onClick={() => setConfirmClearMonth(false)} className="px-2 py-0.5 rounded text-xs bg-white border border-gray-200 text-gray-600 hover:bg-gray-50">No</button>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmClearMonth(true)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" title={`Clear all ${MONTHS[month - 1]} ${year} salary data`}>
+                <Trash2 size={15} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Upload status */}
+      {/* ── Status banners ─────────────────────────────────────────────── */}
       {uploadLog && (
-        <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2.5 flex items-center gap-3 text-sm">
-          <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+        <div className="mb-3 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-2.5 flex items-center gap-3 text-sm">
+          <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />
           <div className="flex-1 min-w-0">
             <span className="text-emerald-800 font-medium">{uploadLog.records_imported} records imported</span>
             <span className="text-emerald-600 ml-2 hidden sm:inline">from {uploadLog.file_name || 'Excel upload'}</span>
@@ -323,10 +335,9 @@ function SalaryContent() {
         </div>
       )}
 
-      {/* Unsaved changes banner */}
       {dirtyCount > 0 && (
-        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 flex items-center gap-3 text-sm">
-          <AlertCircle size={16} className="text-amber-500 shrink-0" />
+        <div className="mb-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 flex items-center gap-3 text-sm">
+          <AlertCircle size={15} className="text-amber-500 shrink-0" />
           <span className="text-amber-800 font-medium">{dirtyCount} unsaved change{dirtyCount !== 1 ? 's' : ''}</span>
           <Button size="sm" variant="outline" onClick={saveAll} disabled={saving} className="ml-auto h-7 text-xs gap-1">
             <Save size={12} />Save Now
@@ -334,7 +345,7 @@ function SalaryContent() {
         </div>
       )}
 
-      {/* Search & Filters */}
+      {/* ── Search & Filters ───────────────────────────────────────────── */}
       <SearchFilter
         search={search}
         onSearchChange={setSearch}
@@ -352,133 +363,308 @@ function SalaryContent() {
         exportLabel="Export CSV"
       />
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mt-4">
-        <div className="overflow-x-auto" style={{ maxHeight: '70vh' }}>
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-gray-50/95 backdrop-blur border-b border-gray-200">
-                <th className="text-left px-3 py-3 font-medium text-gray-600 whitespace-nowrap">Employee</th>
-                <th className="text-left px-3 py-3 font-medium text-gray-600 whitespace-nowrap hidden lg:table-cell">Branch</th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 whitespace-nowrap">Basic</th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 w-24 whitespace-nowrap">Advance (৳)</th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap">
-                  <div>Leave (days)</div>
-                </th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap hidden md:table-cell">
-                  <div>Leave Adj.</div>
-                  <div className="text-xs font-normal text-gray-400">(Used/Left)</div>
-                </th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 w-24 whitespace-nowrap">Late (days)</th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 w-24 whitespace-nowrap">OT (days)</th>
-                <th className="px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap">
-                  <div className="flex items-center gap-2 justify-center">
-                    <Checkbox checked={allChecked} data-state={!allChecked && someChecked ? 'indeterminate' : undefined} onCheckedChange={toggleAllBonus} className="shrink-0" />
-                    <span>Att. Bonus<br /><span className="text-xs font-normal text-gray-400">(৳{ATTENDANCE_BONUS_AMOUNT})</span></span>
-                  </div>
-                </th>
-                <th className="text-right px-3 py-3 font-medium text-gray-600 w-28 whitespace-nowrap hidden md:table-cell">Conveyance (৳)</th>
-                <th className="text-left px-3 py-3 font-medium text-gray-600 w-48 whitespace-nowrap hidden lg:table-cell">Notes</th>
-                <th className="text-right px-3 py-3 font-semibold text-gray-700 bg-blue-50 whitespace-nowrap">Net Payable</th>
-                <th className="px-2 py-3 w-8" />
-              </tr>
-            </thead>
-            <tbody>
-              {displayed.map((row) => {
-                const rec = row.record as SalaryRecord
-                const calc = calcSalary(row.employee, { ...rec, leave_days_taken: rec.leave_days_taken ?? 0, leave_adjustment: rec.leave_adjustment ?? 0, conveyance: rec.conveyance ?? row.employee.conveyance })
-                const yearlyUsed = yearlyLeaveMap.get(row.employee.id) ?? 0
-                const yearlyRemaining = row.employee.yearly_leave_allowance - yearlyUsed
-                const bonusChecked = (rec.attendance_bonus ?? 0) === ATTENDANCE_BONUS_AMOUNT
-                return (
-                  <tr key={row.employee.id} className={`border-b border-gray-100 hover:bg-gray-50/60 transition-colors ${row.dirty ? 'bg-amber-50/40' : ''}`}>
-                    <td className="px-3 py-2.5">
-                      <p className="font-medium text-gray-900">{row.employee.name}</p>
-                      <p className="text-xs text-gray-400">{row.employee.designation}</p>
-                    </td>
-                    <td className="px-3 py-2.5 text-gray-500 text-xs whitespace-nowrap hidden lg:table-cell">{(row.employee.branch as unknown as Branch)?.name}</td>
-                    <td className="px-3 py-2.5 text-right text-gray-700 whitespace-nowrap">{formatTaka(row.employee.basic_salary)}</td>
-                    <td className="px-3 py-2.5">
-                      <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-8 text-sm w-24" />
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-8 text-sm w-20 ml-auto" />
-                    </td>
-                    <td className="px-3 py-2.5 hidden md:table-cell">
-                      <div className="flex flex-col items-end gap-1">
-                        <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-8 text-sm w-20 ml-auto" />
-                        <span className={`text-xs whitespace-nowrap ${yearlyRemaining < 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                          {yearlyUsed}d used · {yearlyRemaining}d left
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-8 text-sm w-20" />
-                    </td>
-                    <td className="px-3 py-2.5">
-                      <Input type="number" min="0" step="0.5" value={rec.ot_days ?? 0} onChange={e => update(row.employee.id, 'ot_days', +e.target.value)} className="text-right h-8 text-sm w-20" />
-                    </td>
-                    <td className="px-3 py-2.5 text-center">
-                      <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} />
-                    </td>
-                    <td className="px-3 py-2.5 hidden md:table-cell">
-                      <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-8 text-sm w-24 ml-auto" />
-                    </td>
-                    <td className="px-3 py-2.5 hidden lg:table-cell">
-                      <Input type="text" value={rec.notes ?? ''} onChange={e => update(row.employee.id, 'notes', e.target.value)} placeholder="Note..." className="h-8 text-sm w-full" />
-                    </td>
-                    <td className="px-3 py-2.5 text-right font-semibold text-blue-700 bg-blue-50/50 whitespace-nowrap">
-                      {formatTaka(calc.net_payable)}
-                    </td>
-                    <td className="px-2 py-2.5">
-                      {confirmDeleteRecId === row.employee.id ? (
-                        <div className="flex flex-col items-center gap-1">
-                          <button onClick={() => deleteRecord(row)} className="w-6 h-5 rounded text-[10px] bg-red-600 text-white hover:bg-red-700 leading-none">✓</button>
-                          <button onClick={() => setConfirmDeleteRecId(null)} className="w-6 h-5 rounded text-[10px] bg-gray-100 text-gray-600 hover:bg-gray-200 leading-none">✕</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => setConfirmDeleteRecId(row.employee.id)} className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 transition-colors" title="Clear this record">
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-              {displayed.length === 0 && (
-                <tr>
-                  <td colSpan={12} className="text-center py-16">
-                    <Users size={32} className="mx-auto text-gray-300 mb-2" />
-                    <p className="text-gray-400 text-sm">No employees found</p>
-                    <p className="text-gray-300 text-xs mt-1">Try changing filters or add employees first</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-            {/* Summary footer */}
-            {displayed.length > 0 && (
-              <tfoot>
-                <tr className="bg-gray-50 border-t-2 border-gray-200 font-semibold text-sm">
-                  <td className="px-3 py-3 text-gray-700" colSpan={2}>
-                    Total ({totals.count} employees)
-                  </td>
-                  <td className="px-3 py-3 text-right text-gray-600 hidden lg:table-cell" />
-                  <td className="px-3 py-3 text-right text-red-600">{formatTaka(Math.round(totals.advance))}</td>
-                  <td className="px-3 py-3 text-right text-red-600">{formatTaka(Math.round(totals.leave))}</td>
-                  <td className="px-3 py-3 hidden md:table-cell" />
-                  <td className="px-3 py-3 text-right text-red-600">{formatTaka(Math.round(totals.late))}</td>
-                  <td className="px-3 py-3 text-right text-green-600">{formatTaka(Math.round(totals.ot))}</td>
-                  <td className="px-3 py-3 text-right text-green-600">{formatTaka(Math.round(totals.bonus))}</td>
-                  <td className="px-3 py-3 text-right text-green-600 hidden md:table-cell">{formatTaka(Math.round(totals.conveyance))}</td>
-                  <td className="px-3 py-3 hidden lg:table-cell" />
-                  <td className="px-3 py-3 text-right font-bold text-blue-800 bg-blue-50 text-base">{formatTaka(Math.round(totals.net))}</td>
-                  <td className="px-2 py-3" />
-                </tr>
-              </tfoot>
-            )}
-          </table>
+      {/* ── Loading skeleton ───────────────────────────────────────────── */}
+      {pageLoading && (
+        <div className="mt-4 bg-white rounded-xl border border-gray-200 overflow-hidden divide-y divide-gray-100">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3 animate-pulse">
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 w-36 bg-gray-200 rounded" />
+                <div className="h-2.5 w-24 bg-gray-100 rounded" />
+              </div>
+              {[80, 72, 72, 72, 56, 56, 72, 84].map((w, j) => (
+                <div key={j} className="h-7 bg-gray-100 rounded hidden md:block" style={{ width: w }} />
+              ))}
+              <div className="h-10 w-full bg-gray-100 rounded md:hidden" />
+            </div>
+          ))}
         </div>
-      </div>
+      )}
+
+      {!pageLoading && (
+        <>
+          {/* ── DESKTOP TABLE (md+) ──────────────────────────────────────── */}
+          <div className="hidden md:block bg-white rounded-xl border border-gray-200 overflow-hidden mt-4">
+            <div className="overflow-x-auto" style={{ maxHeight: '70vh' }}>
+              <table className="w-full text-sm border-collapse">
+                <thead className="sticky top-0 z-10">
+                  <tr className="bg-gray-50/95 backdrop-blur border-b-2 border-gray-200 text-xs uppercase tracking-wide">
+                    <th className="text-left px-3 py-2.5 font-semibold text-gray-500">Employee</th>
+                    <th className="text-left px-3 py-2.5 font-semibold text-gray-500 hidden lg:table-cell">Branch</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-gray-500">Basic</th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-gray-500 w-24">
+                      Advance<br /><span className="normal-case font-normal text-gray-400 text-[10px]">(৳)</span>
+                    </th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-gray-500 w-24">
+                      Leave<br /><span className="normal-case font-normal text-gray-400 text-[10px]">(days)</span>
+                    </th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-gray-500 w-28 hidden lg:table-cell">
+                      Leave Adj.<br /><span className="normal-case font-normal text-gray-400 text-[10px]">Used / Left</span>
+                    </th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-gray-500 w-20">
+                      Late<br /><span className="normal-case font-normal text-gray-400 text-[10px]">(days)</span>
+                    </th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-gray-500 w-20">
+                      OT<br /><span className="normal-case font-normal text-gray-400 text-[10px]">(days)</span>
+                    </th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-gray-500 w-24">
+                      <div className="flex flex-col items-center gap-0.5">
+                        <div className="flex items-center gap-1">
+                          <Checkbox checked={allChecked} data-state={!allChecked && someChecked ? 'indeterminate' : undefined} onCheckedChange={toggleAllBonus} className="shrink-0" />
+                          <span>Att.</span>
+                        </div>
+                        <span className="normal-case font-normal text-gray-400 text-[10px]">Bonus</span>
+                      </div>
+                    </th>
+                    <th className="text-center px-2 py-2.5 font-semibold text-gray-500 w-24 hidden lg:table-cell">
+                      Conv.<br /><span className="normal-case font-normal text-gray-400 text-[10px]">(৳)</span>
+                    </th>
+                    <th className="text-left px-3 py-2.5 font-semibold text-gray-500 hidden xl:table-cell" style={{ minWidth: 160 }}>Notes</th>
+                    <th className="text-right px-3 py-2.5 font-semibold text-gray-700 bg-blue-50/80 normal-case tracking-normal">Net Payable</th>
+                    <th className="px-2 py-2.5 w-8" />
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-gray-100">
+                  {displayed.map((row) => {
+                    const rec = row.record as SalaryRecord
+                    const calc = calcSalary(row.employee, { ...rec, leave_days_taken: rec.leave_days_taken ?? 0, leave_adjustment: rec.leave_adjustment ?? 0, conveyance: rec.conveyance ?? row.employee.conveyance })
+                    const yearlyUsed = yearlyLeaveMap.get(row.employee.id) ?? 0
+                    const yearlyRemaining = row.employee.yearly_leave_allowance - yearlyUsed
+                    const bonusChecked = (rec.attendance_bonus ?? 0) === ATTENDANCE_BONUS_AMOUNT
+                    return (
+                      <tr key={row.employee.id} className={`hover:bg-gray-50/60 transition-colors ${row.dirty ? 'bg-amber-50/30' : ''}`}>
+                        <td className="px-3 py-2">
+                          <p className="font-medium text-gray-900 text-sm leading-tight">{row.employee.name}</p>
+                          <p className="text-xs text-gray-400 mt-0.5 leading-tight">{row.employee.designation}</p>
+                        </td>
+                        <td className="px-3 py-2 text-gray-500 text-xs hidden lg:table-cell">{(row.employee.branch as unknown as Branch)?.name}</td>
+                        <td className="px-3 py-2 text-right text-gray-700 text-sm whitespace-nowrap font-medium">{formatTaka(row.employee.basic_salary)}</td>
+                        <td className="px-2 py-2">
+                          <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                        </td>
+                        <td className="px-2 py-2">
+                          <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                        </td>
+                        <td className="px-2 py-2 hidden lg:table-cell">
+                          <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                          <p className={`text-[10px] text-right mt-0.5 ${yearlyRemaining < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                            {yearlyUsed}d · {yearlyRemaining}d left
+                          </p>
+                        </td>
+                        <td className="px-2 py-2">
+                          <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                        </td>
+                        <td className="px-2 py-2">
+                          <Input type="number" min="0" step="0.5" value={rec.ot_days ?? 0} onChange={e => update(row.employee.id, 'ot_days', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                        </td>
+                        <td className="px-2 py-2 text-center">
+                          <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} />
+                        </td>
+                        <td className="px-2 py-2 hidden lg:table-cell">
+                          <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                        </td>
+                        <td className="px-3 py-2 hidden xl:table-cell align-top" style={{ minWidth: 160 }}>
+                          <textarea
+                            value={rec.notes ?? ''}
+                            onChange={e => update(row.employee.id, 'notes', e.target.value)}
+                            placeholder="Note..."
+                            rows={2}
+                            className="w-full min-h-[52px] text-xs px-2 py-1.5 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                          />
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold text-blue-700 bg-blue-50/40 whitespace-nowrap text-sm">
+                          {formatTaka(calc.net_payable)}
+                        </td>
+                        <td className="px-2 py-2 text-center">
+                          {confirmDeleteRecId === row.employee.id ? (
+                            <div className="flex flex-col items-center gap-1">
+                              <button onClick={() => deleteRecord(row)} className="w-6 h-5 rounded text-[10px] bg-red-600 text-white hover:bg-red-700 leading-none">✓</button>
+                              <button onClick={() => setConfirmDeleteRecId(null)} className="w-6 h-5 rounded text-[10px] bg-gray-100 text-gray-600 hover:bg-gray-200 leading-none">✕</button>
+                            </div>
+                          ) : (
+                            <button onClick={() => setConfirmDeleteRecId(row.employee.id)} className="p-1 rounded hover:bg-red-50 text-gray-300 hover:text-red-500 transition-colors" title="Clear this record">
+                              <Trash2 size={13} />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {displayed.length === 0 && (
+                    <tr>
+                      <td colSpan={13} className="text-center py-16">
+                        <Users size={32} className="mx-auto text-gray-300 mb-2" />
+                        <p className="text-gray-400 text-sm">No employees found</p>
+                        <p className="text-gray-300 text-xs mt-1">Try changing filters or add employees first</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+
+                {/* Summary footer */}
+                {displayed.length > 0 && (
+                  <tfoot>
+                    <tr className="bg-gray-50/80 border-t-2 border-gray-200 text-sm font-medium">
+                      <td className="px-3 py-2.5 font-semibold text-gray-700" colSpan={2}>
+                        Total ({totals.count} emp.)
+                      </td>
+                      <td className="px-3 py-2.5 hidden lg:table-cell" />
+                      <td className="px-2 py-2.5 text-center text-red-600">{formatTaka(Math.round(totals.advance))}</td>
+                      <td className="px-2 py-2.5 text-center text-red-600">{formatTaka(Math.round(totals.leave))}</td>
+                      <td className="px-2 py-2.5 hidden lg:table-cell" />
+                      <td className="px-2 py-2.5 text-center text-red-600">{formatTaka(Math.round(totals.late))}</td>
+                      <td className="px-2 py-2.5 text-center text-green-600">{formatTaka(Math.round(totals.ot))}</td>
+                      <td className="px-2 py-2.5 text-center text-green-600">{formatTaka(Math.round(totals.bonus))}</td>
+                      <td className="px-2 py-2.5 text-center text-green-600 hidden lg:table-cell">{formatTaka(Math.round(totals.conveyance))}</td>
+                      <td className="px-3 py-2.5 hidden xl:table-cell" />
+                      <td className="px-3 py-2.5 text-right font-bold text-blue-800 bg-blue-50 text-base">{formatTaka(Math.round(totals.net))}</td>
+                      <td className="px-2 py-2.5" />
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </div>
+          </div>
+
+          {/* ── MOBILE CARDS (< md) ──────────────────────────────────────── */}
+          <div className="md:hidden mt-4 space-y-3">
+            {displayed.length === 0 && (
+              <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
+                <Users size={32} className="mx-auto text-gray-300 mb-2" />
+                <p className="text-gray-400 text-sm">No employees found</p>
+                <p className="text-gray-300 text-xs mt-1">Try changing filters or add employees first</p>
+              </div>
+            )}
+            {displayed.map((row) => {
+              const rec = row.record as SalaryRecord
+              const calc = calcSalary(row.employee, { ...rec, leave_days_taken: rec.leave_days_taken ?? 0, leave_adjustment: rec.leave_adjustment ?? 0, conveyance: rec.conveyance ?? row.employee.conveyance })
+              const yearlyUsed = yearlyLeaveMap.get(row.employee.id) ?? 0
+              const yearlyRemaining = row.employee.yearly_leave_allowance - yearlyUsed
+              const bonusChecked = (rec.attendance_bonus ?? 0) === ATTENDANCE_BONUS_AMOUNT
+              const branchName = (row.employee.branch as unknown as Branch)?.name
+              return (
+                <div key={row.employee.id} className={`bg-white rounded-xl border shadow-sm ${row.dirty ? 'border-amber-300' : 'border-gray-200'}`}>
+                  {/* Card header */}
+                  <div className={`flex items-start justify-between px-4 py-3 rounded-t-xl ${row.dirty ? 'bg-amber-50/50' : 'bg-gray-50/60'} border-b border-gray-100`}>
+                    <div>
+                      <p className="font-semibold text-gray-900">{row.employee.name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{row.employee.designation}{branchName ? ` · ${branchName}` : ''}</p>
+                    </div>
+                    <div className="text-right ml-3 shrink-0">
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wide font-medium">Net Payable</p>
+                      <p className="font-bold text-blue-700 text-lg leading-tight">{formatTaka(calc.net_payable)}</p>
+                    </div>
+                  </div>
+
+                  {/* Input grid */}
+                  <div className="px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Advance (৳)</label>
+                      <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-8 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Leave (days)</label>
+                      <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-8 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">
+                        Leave Adj.
+                        <span className={`ml-1 text-[10px] ${yearlyRemaining < 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                          ({yearlyUsed}d used, {yearlyRemaining}d left)
+                        </span>
+                      </label>
+                      <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-8 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Late (days)</label>
+                      <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-8 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">OT (days)</label>
+                      <Input type="number" min="0" step="0.5" value={rec.ot_days ?? 0} onChange={e => update(row.employee.id, 'ot_days', +e.target.value)} className="text-right h-8 text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 mb-1 block">Conveyance (৳)</label>
+                      <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-8 text-sm" />
+                    </div>
+                  </div>
+
+                  {/* Attendance bonus + delete */}
+                  <div className="px-4 pb-3 flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} />
+                      <span className="text-xs font-medium text-gray-600">
+                        Attendance Bonus <span className="text-gray-400 font-normal">(৳{ATTENDANCE_BONUS_AMOUNT})</span>
+                      </span>
+                    </label>
+                    {confirmDeleteRecId === row.employee.id ? (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs text-red-700 font-medium">Clear?</span>
+                        <button onClick={() => deleteRecord(row)} className="px-2 py-0.5 rounded text-xs bg-red-600 text-white hover:bg-red-700">Yes</button>
+                        <button onClick={() => setConfirmDeleteRecId(null)} className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">No</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setConfirmDeleteRecId(row.employee.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-500 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Notes */}
+                  <div className="px-4 pb-4 border-t border-gray-100 pt-3">
+                    <label className="text-xs font-medium text-gray-500 mb-1 block">Notes</label>
+                    <textarea
+                      value={rec.notes ?? ''}
+                      onChange={e => update(row.employee.id, 'notes', e.target.value)}
+                      placeholder="Add a note..."
+                      rows={2}
+                      className="w-full min-h-[52px] text-sm px-2 py-1.5 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                    />
+                  </div>
+                </div>
+              )
+            })}
+
+            {/* Mobile totals card */}
+            {displayed.length > 0 && (
+              <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Summary — {totals.count} employees</p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                  <div className="flex justify-between gap-2">
+                    <span className="text-gray-500">Advance</span>
+                    <span className="text-red-600 font-medium">{formatTaka(Math.round(totals.advance))}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-gray-500">Leave</span>
+                    <span className="text-red-600 font-medium">{formatTaka(Math.round(totals.leave))}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-gray-500">Late</span>
+                    <span className="text-red-600 font-medium">{formatTaka(Math.round(totals.late))}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-gray-500">OT</span>
+                    <span className="text-green-600 font-medium">{formatTaka(Math.round(totals.ot))}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-gray-500">Att. Bonus</span>
+                    <span className="text-green-600 font-medium">{formatTaka(Math.round(totals.bonus))}</span>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-gray-500">Conveyance</span>
+                    <span className="text-green-600 font-medium">{formatTaka(Math.round(totals.conveyance))}</span>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between items-center">
+                  <span className="font-semibold text-gray-700 text-sm">Total Net Payable</span>
+                  <span className="text-xl font-bold text-blue-700">{formatTaka(Math.round(totals.net))}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

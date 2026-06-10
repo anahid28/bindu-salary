@@ -127,13 +127,13 @@ function SlipPreview({ calc, month, year, settings }: SlipPreviewProps) {
       )}
 
       {/* Signature */}
-      <div className="flex justify-between mt-6 px-1">
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-20 border-b border-gray-800" />
+      <div className="flex justify-between mt-8 px-4">
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="w-28 border-b border-gray-800" />
           <span className="text-xs text-gray-600">Payment by</span>
         </div>
-        <div className="flex flex-col items-center gap-1">
-          <div className="w-20 border-b border-gray-800" />
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="w-28 border-b border-gray-800" />
           <span className="text-xs text-gray-600">Received by</span>
         </div>
       </div>

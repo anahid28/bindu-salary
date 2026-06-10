@@ -213,12 +213,13 @@ const s = StyleSheet.create({
   sigRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 14,
-    paddingHorizontal: 4,
+    marginTop: 18,
+    paddingHorizontal: 12,
   },
   sigText: {
     fontSize: 8.5,
     color: DARK,
+    marginTop: 5,
   },
   noteText: {
     fontSize: 8.5,
@@ -397,13 +398,13 @@ function Slip({ calc, month, year, generatedBy, genTimeStr }: {
       )}
 
       {/* Signature */}
-      <View style={[s.sigRow, { marginTop: 20 }]}>
+      <View style={[s.sigRow, { marginTop: 24 }]}>
         <View style={{ alignItems: 'center' }}>
-          <View style={{ width: 80, borderBottom: `1 solid ${DARK}`, marginBottom: 4 }} />
+          <View style={{ width: 100, borderBottom: `1 solid ${DARK}` }} />
           <Text style={s.sigText}>Payment by</Text>
         </View>
         <View style={{ alignItems: 'center' }}>
-          <View style={{ width: 80, borderBottom: `1 solid ${DARK}`, marginBottom: 4 }} />
+          <View style={{ width: 100, borderBottom: `1 solid ${DARK}` }} />
           <Text style={s.sigText}>Received by</Text>
         </View>
       </View>

@@ -49,8 +49,8 @@ const s = StyleSheet.create({
   tPayableAmt: { width: 52, padding: '4 5', textAlign: 'right', fontSize: 9, fontFamily: 'Helvetica-Bold', textDecoration: 'underline', borderLeft: `1 solid ${BORDER}`, justifyContent: 'center', color: BLACK },
   noteBox: { backgroundColor: '#fffbeb', borderTop: `1 solid #fde68a`, padding: '4 6', marginTop: 0 },
   noteText: { fontSize: 7, color: '#92400e', fontFamily: 'Helvetica-Oblique' },
-  sigRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 14, paddingHorizontal: 4 },
-  sigText: { fontSize: 8.5, color: DARK },
+  sigRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 18, paddingHorizontal: 12 },
+  sigText: { fontSize: 8.5, color: DARK, marginTop: 5 },
 })
 
 function fmt(n: number) {
@@ -141,13 +141,13 @@ function EidSlip({ calc, title, generatedBy, genTimeStr }: { calc: EidCalc; titl
         <Text style={s.noteText}>Note: Conveyance, Leave, Late, Attendance Bonus & OT adjusted at final due payment.</Text>
       </View>
 
-      <View style={[s.sigRow, { marginTop: 20 }]}>
+      <View style={[s.sigRow, { marginTop: 24 }]}>
         <View style={{ alignItems: 'center' }}>
-          <View style={{ width: 80, borderBottom: `1 solid ${DARK}`, marginBottom: 4 }} />
+          <View style={{ width: 100, borderBottom: `1 solid ${DARK}` }} />
           <Text style={s.sigText}>Payment by</Text>
         </View>
         <View style={{ alignItems: 'center' }}>
-          <View style={{ width: 80, borderBottom: `1 solid ${DARK}`, marginBottom: 4 }} />
+          <View style={{ width: 100, borderBottom: `1 solid ${DARK}` }} />
           <Text style={s.sigText}>Received by</Text>
         </View>
       </View>

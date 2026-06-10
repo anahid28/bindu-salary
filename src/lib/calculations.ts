@@ -37,7 +37,7 @@ export function calcSalary(employee: Employee, record: SalaryRecord, yearly_used
     ot_addition,
     conveyance,
     attendance_bonus: record.attendance_bonus,
-    net_payable: Math.round(net_payable),
+    net_payable: Math.round(net_payable / 10) * 10,
     daily_rate,
     yearly_used_leave,
   }
@@ -55,7 +55,7 @@ export function calcEid(employee: Employee, record: EidRecord): EidCalc {
     salary_payment,
     advance_deducted: record.advance_deducted,
     eid_bonus,
-    net_payable: Math.round(net_payable),
+    net_payable: Math.round(net_payable / 10) * 10,
   }
 }
 

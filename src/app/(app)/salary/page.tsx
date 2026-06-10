@@ -441,28 +441,28 @@ function SalaryContent() {
                         <td className="px-3 py-2 text-gray-500 text-xs hidden lg:table-cell">{(row.employee.branch as unknown as Branch)?.name}</td>
                         <td className="px-3 py-2 text-right text-gray-700 text-sm whitespace-nowrap font-medium">{formatTaka(row.employee.basic_salary)}</td>
                         <td className="px-2 py-2">
-                          <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                          <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-7 text-xs w-full min-w-[60px] border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                         </td>
                         <td className="px-2 py-2">
-                          <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                          <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-7 text-xs w-full min-w-[60px] border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                         </td>
                         <td className="px-2 py-2 hidden lg:table-cell">
-                          <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                          <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-7 text-xs w-full min-w-[60px] border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                           <p className={`text-[10px] text-right mt-0.5 ${yearlyRemaining < 0 ? 'text-red-500' : 'text-gray-400'}`}>
                             {yearlyUsed}d · {yearlyRemaining}d left
                           </p>
                         </td>
                         <td className="px-2 py-2">
-                          <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                          <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-7 text-xs w-full min-w-[60px] border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                         </td>
                         <td className="px-2 py-2">
-                          <Input type="number" min="0" step="0.5" value={rec.ot_days ?? 0} onChange={e => update(row.employee.id, 'ot_days', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                          <Input type="number" min="0" step="0.5" value={rec.ot_days ?? 0} onChange={e => update(row.employee.id, 'ot_days', +e.target.value)} className="text-right h-7 text-xs w-full min-w-[60px] border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                         </td>
                         <td className="px-2 py-2 text-center">
-                          <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} />
+                          <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} className="border-gray-400" />
                         </td>
                         <td className="px-2 py-2 hidden lg:table-cell">
-                          <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-7 text-xs w-full" />
+                          <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-7 text-xs w-full min-w-[60px] border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                         </td>
                         <td className="px-3 py-2 hidden xl:table-cell align-top" style={{ minWidth: 160 }}>
                           <textarea
@@ -470,7 +470,7 @@ function SalaryContent() {
                             onChange={e => update(row.employee.id, 'notes', e.target.value)}
                             placeholder="Note..."
                             rows={2}
-                            className="w-full min-h-[52px] text-xs px-2 py-1.5 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                            className="w-full min-w-[120px] min-h-[52px] text-xs px-2 py-1.5 border border-gray-300 rounded-md bg-white text-gray-900 placeholder:text-gray-400 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </td>
                         <td className="px-3 py-2 text-right font-semibold text-blue-700 bg-blue-50/40 whitespace-nowrap text-sm">
@@ -561,11 +561,11 @@ function SalaryContent() {
                   <div className="px-4 py-3 grid grid-cols-2 gap-x-4 gap-y-3">
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Advance (৳)</label>
-                      <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-8 text-sm" />
+                      <Input type="number" min="0" value={rec.advance_deducted ?? 0} onChange={e => update(row.employee.id, 'advance_deducted', +e.target.value)} className="text-right h-8 text-sm border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Leave (days)</label>
-                      <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-8 text-sm" />
+                      <Input type="number" min="0" step="0.5" value={rec.leave_days_taken ?? 0} onChange={e => update(row.employee.id, 'leave_days_taken', +e.target.value)} className="text-right h-8 text-sm border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">
@@ -574,26 +574,26 @@ function SalaryContent() {
                           ({yearlyUsed}d used, {yearlyRemaining}d left)
                         </span>
                       </label>
-                      <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-8 text-sm" />
+                      <Input type="number" step="1" value={rec.leave_adjustment ?? 0} onChange={e => update(row.employee.id, 'leave_adjustment', +e.target.value)} className="text-right h-8 text-sm border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Late (days)</label>
-                      <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-8 text-sm" />
+                      <Input type="number" min="0" value={rec.late_days ?? 0} onChange={e => update(row.employee.id, 'late_days', +e.target.value)} className="text-right h-8 text-sm border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">OT (days)</label>
-                      <Input type="number" min="0" step="0.5" value={rec.ot_days ?? 0} onChange={e => update(row.employee.id, 'ot_days', +e.target.value)} className="text-right h-8 text-sm" />
+                      <Input type="number" min="0" step="0.5" value={rec.ot_days ?? 0} onChange={e => update(row.employee.id, 'ot_days', +e.target.value)} className="text-right h-8 text-sm border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                     </div>
                     <div>
                       <label className="text-xs font-medium text-gray-500 mb-1 block">Conveyance (৳)</label>
-                      <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-8 text-sm" />
+                      <Input type="number" min="0" value={rec.conveyance ?? row.employee.conveyance} onChange={e => update(row.employee.id, 'conveyance', +e.target.value)} className="text-right h-8 text-sm border-gray-300 bg-white text-gray-900 focus:border-blue-500" />
                     </div>
                   </div>
 
                   {/* Attendance bonus + delete */}
                   <div className="px-4 pb-3 flex items-center justify-between">
                     <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} />
+                      <Checkbox checked={bonusChecked} onCheckedChange={checked => update(row.employee.id, 'attendance_bonus', checked ? ATTENDANCE_BONUS_AMOUNT : 0)} className="border-gray-400" />
                       <span className="text-xs font-medium text-gray-600">
                         Attendance Bonus <span className="text-gray-400 font-normal">(৳{ATTENDANCE_BONUS_AMOUNT})</span>
                       </span>
@@ -619,7 +619,7 @@ function SalaryContent() {
                       onChange={e => update(row.employee.id, 'notes', e.target.value)}
                       placeholder="Add a note..."
                       rows={2}
-                      className="w-full min-h-[52px] text-sm px-2 py-1.5 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground resize-y focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="w-full min-h-[52px] text-sm px-2 py-1.5 border border-gray-300 rounded-md bg-white text-gray-900 placeholder:text-gray-400 resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 </div>

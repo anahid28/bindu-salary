@@ -289,7 +289,7 @@ function SalaryContent() {
           <div className="w-px h-6 bg-gray-200 mx-1" />
 
           {/* Primary actions */}
-          <Button onClick={saveAll} disabled={saving || dirtyCount === 0} size="sm" className="gap-2 relative text-gray-900">
+          <Button onClick={saveAll} disabled={saving || dirtyCount === 0} size="sm" className="gap-2 relative bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-200 disabled:text-gray-500">
             <Save size={14} />{saving ? 'Saving…' : 'Save All'}
             {dirtyCount > 0 && !saving && (
               <span className="absolute -top-1.5 -right-1.5 bg-amber-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">

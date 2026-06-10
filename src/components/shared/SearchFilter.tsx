@@ -116,7 +116,7 @@ export function SearchFilter({
             value={localSearch}
             onChange={e => setLocalSearch(e.target.value)}
             placeholder={searchPlaceholder}
-            className="pl-9 pr-8 h-9 bg-white"
+            className="pl-9 pr-8 h-9 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
           />
           {localSearch && (
             <button
@@ -131,7 +131,7 @@ export function SearchFilter({
         {/* Branch filter */}
         {showBranchFilter && branches && onBranchChange && (
           <Select value={branchFilter ?? 'all'} onValueChange={v => onBranchChange(v ?? 'all')}>
-            <SelectTrigger className="w-full sm:w-48 h-9 bg-white">
+            <SelectTrigger className="w-full sm:w-48 h-9 bg-white border-gray-300 text-gray-900">
               <Filter size={13} className="mr-1.5 text-gray-400 shrink-0" />
               <SelectValue placeholder="All Branches" />
             </SelectTrigger>
@@ -145,7 +145,7 @@ export function SearchFilter({
         {/* Sort */}
         {sortOptions && sortOptions.length > 0 && (
           <Select value={sortValue ?? ''} onValueChange={v => onSortChange?.(v ?? '')}>
-            <SelectTrigger className="w-full sm:w-44 h-9 bg-white">
+            <SelectTrigger className="w-full sm:w-44 h-9 bg-white border-gray-300 text-gray-900">
               <ArrowUpDown size={13} className="mr-1.5 text-gray-400 shrink-0" />
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
@@ -162,7 +162,7 @@ export function SearchFilter({
 
         {/* CSV Export */}
         {onExportCSV && (
-          <Button variant="outline" size="sm" onClick={onExportCSV} className="gap-1.5 h-9 text-xs shrink-0">
+          <Button variant="outline" size="sm" onClick={onExportCSV} className="gap-1.5 h-9 text-xs shrink-0 bg-white border-gray-300 text-gray-900 hover:bg-gray-50">
             <Download size={13} />
             <span className="hidden sm:inline">{exportLabel}</span>
           </Button>

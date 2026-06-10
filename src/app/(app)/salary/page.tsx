@@ -265,11 +265,11 @@ function SalaryContent() {
           {/* Period selectors always visible */}
           <div className="flex items-center gap-2 flex-wrap">
             <Select value={String(month)} onValueChange={v => setMonth(+(v ?? month))}>
-              <SelectTrigger className="w-36 bg-white"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-36 bg-white border-gray-300 text-gray-900"><SelectValue /></SelectTrigger>
               <SelectContent>{MONTHS.map((m, i) => <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={String(year)} onValueChange={v => setYear(+(v ?? year))}>
-              <SelectTrigger className="w-24 bg-white"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-24 bg-white border-gray-300 text-gray-900"><SelectValue /></SelectTrigger>
               <SelectContent>{yearOptions.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}</SelectContent>
             </Select>
           </div>
@@ -278,18 +278,18 @@ function SalaryContent() {
         {/* Action row */}
         <div className="flex flex-wrap items-center gap-2">
           {/* File actions */}
-          <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="gap-1.5 text-xs">
+          <Button variant="outline" size="sm" onClick={handleDownloadTemplate} className="gap-1.5 text-xs bg-white border-gray-300 text-gray-900 hover:bg-gray-50">
             <Download size={14} />Template
           </Button>
           <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFileUpload} className="hidden" />
-          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="gap-1.5 text-xs">
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="gap-1.5 text-xs bg-white border-gray-300 text-gray-900 hover:bg-gray-50">
             <Upload size={14} />{uploading ? 'Importing…' : 'Upload'}
           </Button>
 
           <div className="w-px h-6 bg-gray-200 mx-1" />
 
           {/* Primary actions */}
-          <Button onClick={saveAll} disabled={saving || dirtyCount === 0} size="sm" className="gap-2 relative">
+          <Button onClick={saveAll} disabled={saving || dirtyCount === 0} size="sm" className="gap-2 relative text-gray-900">
             <Save size={14} />{saving ? 'Saving…' : 'Save All'}
             {dirtyCount > 0 && !saving && (
               <span className="absolute -top-1.5 -right-1.5 bg-amber-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">
@@ -297,10 +297,10 @@ function SalaryContent() {
               </span>
             )}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => router.push(`/slips?month=${month}&year=${year}`)} className="gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => router.push(`/slips?month=${month}&year=${year}`)} className="gap-1.5 bg-white border-gray-300 text-gray-900 hover:bg-gray-50">
             View Slips <ChevronRight size={14} />
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => router.push(`/feed?year=${year}`)} className="gap-1.5 text-xs text-gray-500">
+          <Button variant="ghost" size="sm" onClick={() => router.push(`/feed?year=${year}`)} className="gap-1.5 text-xs text-gray-600 hover:text-gray-900">
             <CalendarDays size={14} />Feed
           </Button>
 

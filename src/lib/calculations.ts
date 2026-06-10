@@ -5,8 +5,8 @@ const WORKING_DAYS = 26
 export function calcSalary(employee: Employee, record: SalaryRecord, yearly_used_leave: number = 0): SalaryCalc {
   const daily_rate = employee.basic_salary / WORKING_DAYS
 
-  // Leave deduction: only days beyond yearly allowance, minus any leave adjustment
-  const deductable_leave = Math.max(0, record.leave_days_taken - employee.yearly_leave_allowance - (record.leave_adjustment ?? 0))
+  // Leave deduction: deduct days taken minus any leave adjustment
+  const deductable_leave = Math.max(0, record.leave_days_taken - (record.leave_adjustment ?? 0))
   const leave_deduction = deductable_leave * daily_rate
 
   // Late deduction: every 3 late days = 1 day salary

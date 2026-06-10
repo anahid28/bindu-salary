@@ -42,11 +42,11 @@ function SlipsContent() {
       supabase.from('salary_records').select('*').eq('month', month).eq('year', year),
       supabase.from('branches').select('*').order('name'),
       supabase.from('settings').select('*').limit(1).single(),
-      supabase.from('salary_records').select('employee_id, leave_days_taken').eq('year', year),
+      supabase.from('salary_records').select('employee_id, leave_adjustment').eq('year', year),
     ])
     const leaveMap = new Map<string, number>()
     for (const r of (yearRecs ?? [])) {
-      leaveMap.set(r.employee_id, (leaveMap.get(r.employee_id) ?? 0) + (r.leave_days_taken ?? 0))
+      leaveMap.set(r.employee_id, (leaveMap.get(r.employee_id) ?? 0) + (r.leave_adjustment ?? 0))
     }
     const recMap = new Map((recs ?? []).map(r => [r.employee_id, r as SalaryRecord]))
     const map = new Map<string, SalaryCalc[]>()

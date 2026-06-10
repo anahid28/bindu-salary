@@ -59,13 +59,13 @@ function SalaryContent() {
       supabase.from('employees').select('*, branch:branches(*)').eq('active', true).order('name'),
       supabase.from('salary_records').select('*').eq('month', month).eq('year', year),
       supabase.from('branches').select('*').order('name'),
-      supabase.from('salary_records').select('employee_id, leave_days_taken').eq('year', year),
+      supabase.from('salary_records').select('employee_id, leave_adjustment').eq('year', year),
       supabase.from('salary_upload_log').select('file_name, records_imported, uploaded_at').eq('month', month).eq('year', year).maybeSingle(),
     ])
 
     const leaveMap = new Map<string, number>()
     for (const r of (yearRecs ?? [])) {
-      leaveMap.set(r.employee_id, (leaveMap.get(r.employee_id) ?? 0) + (r.leave_days_taken ?? 0))
+      leaveMap.set(r.employee_id, (leaveMap.get(r.employee_id) ?? 0) + (r.leave_adjustment ?? 0))
     }
     setYearlyLeaveMap(leaveMap)
 

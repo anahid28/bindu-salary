@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge'
 import { SearchFilter, type SortOption } from '@/components/shared/SearchFilter'
 import { downloadCSV } from '@/lib/csv'
 import { formatTaka } from '@/lib/calculations'
+import { MONTHS } from '@/types'
 import { downloadEmployeeTemplate, parseEmployeeSheet } from '@/lib/excel'
 import { EmployeeProfileModal } from '@/components/employees/EmployeeProfileModal'
 
@@ -22,6 +23,7 @@ const EMPTY: Partial<Employee> = {
   basic_salary: 0, yearly_leave_allowance: 12, conveyance: 1500, active: true,
   mobile_number: '', date_of_birth: '', joining_date: '', address: '',
   emergency_contact: '', blood_group: '', nid_number: '',
+  increment_amount: 0, increment_month: undefined, next_increment_session: '',
 }
 
 function getInitials(name: string) {
@@ -94,12 +96,17 @@ export default function EmployeesPage() {
       return
     }
     setLoading(true)
+
+    const incrementAmount = editing.increment_amount ?? 0
+    const baseSalary = editing.basic_salary ?? 0
+    const newSalary = incrementAmount > 0 ? baseSalary + incrementAmount : baseSalary
+
     const payload = {
       employee_id: editing.employee_id,
       name: editing.name,
       designation: editing.designation,
       branch_id: editing.branch_id,
-      basic_salary: editing.basic_salary ?? 0,
+      basic_salary: newSalary,
       yearly_leave_allowance: editing.yearly_leave_allowance ?? 12,
       conveyance: editing.conveyance ?? 1500,
       active: editing.active ?? true,
@@ -110,11 +117,54 @@ export default function EmployeesPage() {
       emergency_contact: editing.emergency_contact || null,
       blood_group: editing.blood_group || null,
       nid_number: editing.nid_number || null,
+      increment_amount: 0,
+      increment_month: editing.increment_month ?? null,
+      next_increment_session: editing.next_increment_session || null,
     }
+
     if (editing.id) {
+      // Apply increment: auto-add note to that month's salary record
+      if (incrementAmount > 0 && editing.increment_month) {
+        const currentYear = new Date().getFullYear()
+        const incrementNote = `Increment: ৳${baseSalary.toLocaleString('en-BD')} + ৳${incrementAmount.toLocaleString('en-BD')} = ৳${newSalary.toLocaleString('en-BD')}`
+
+        const { data: existingRec } = await supabase
+          .from('salary_records')
+          .select('*')
+          .eq('employee_id', editing.id)
+          .eq('month', editing.increment_month)
+          .eq('year', currentYear)
+          .maybeSingle()
+
+        const rec = existingRec as Record<string, unknown> | null
+        const existingNotes = (rec?.notes as string) ?? ''
+        const newNotes = existingNotes ? `${existingNotes}\n${incrementNote}` : incrementNote
+
+        await supabase.from('salary_records').upsert({
+          employee_id: editing.id,
+          month: editing.increment_month,
+          year: currentYear,
+          advance_deducted: (rec?.advance_deducted as number) ?? 0,
+          leave_days_taken: (rec?.leave_days_taken as number) ?? 0,
+          leave_adjustment: (rec?.leave_adjustment as number) ?? 0,
+          late_days: (rec?.late_days as number) ?? 0,
+          ot_days: (rec?.ot_days as number) ?? 0,
+          attendance_bonus: (rec?.attendance_bonus as number) ?? 0,
+          conveyance: (rec?.conveyance as number) ?? (editing.conveyance ?? 1500),
+          notes: newNotes,
+        }, { onConflict: 'employee_id,month,year' })
+      }
+
       const { error } = await supabase.from('employees').update(payload).eq('id', editing.id)
-      if (error) toast.error(error.message)
-      else { toast.success('Employee updated'); setOpen(false); load() }
+      if (error) { toast.error(error.message); setLoading(false); return }
+
+      if (incrementAmount > 0) {
+        toast.success(`Increment applied! New salary: ${formatTaka(newSalary)}`)
+      } else {
+        toast.success('Employee updated')
+      }
+      setOpen(false)
+      load()
     } else {
       const { error } = await supabase.from('employees').insert(payload)
       if (error) toast.error(error.message)
@@ -522,6 +572,43 @@ export default function EmployeesPage() {
                 </div>
               </div>
             </div>
+            {editing.id && (
+              <div className="border-t border-gray-100 pt-4 space-y-3">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Increment</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Increment Amount (৳)</Label>
+                    <Input type="number" min="0" value={editing.increment_amount ?? 0} onChange={e => setEditing(p => ({ ...p, increment_amount: +e.target.value }))} placeholder="0" className="mt-1" />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Increment Month</Label>
+                    <Select value={editing.increment_month ? String(editing.increment_month) : ''} onValueChange={v => setEditing(p => ({ ...p, increment_month: v ? +v : undefined }))}>
+                      <SelectTrigger className="mt-1"><SelectValue placeholder="Select month" /></SelectTrigger>
+                      <SelectContent>
+                        {MONTHS.map((m, i) => <SelectItem key={i} value={String(i + 1)}>{m}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Next Session</Label>
+                    <Select value={editing.next_increment_session ?? ''} onValueChange={v => setEditing(p => ({ ...p, next_increment_session: v }))}>
+                      <SelectTrigger className="mt-1"><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="January">January</SelectItem>
+                        <SelectItem value="July">July</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {(editing.increment_amount ?? 0) > 0 && (
+                  <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 space-y-0.5">
+                    <p className="font-semibold">Increment preview:</p>
+                    <p>{formatTaka(editing.basic_salary ?? 0)} + {formatTaka(editing.increment_amount ?? 0)} = {formatTaka((editing.basic_salary ?? 0) + (editing.increment_amount ?? 0))}</p>
+                    {editing.increment_month && <p className="text-amber-600">Note will be added to {MONTHS[editing.increment_month - 1]} salary sheet</p>}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex justify-end gap-2 mt-2 pt-3 border-t border-gray-100">
             <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>

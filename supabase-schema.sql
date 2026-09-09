@@ -27,6 +27,7 @@ create table if not exists salary_records (
   year int not null,
   advance_deducted numeric not null default 0,
   leave_days_taken numeric not null default 0,
+  leave_adjustment numeric not null default 0,
   late_days int not null default 0,
   ot_days numeric not null default 0,
   attendance_bonus numeric not null default 0,
@@ -119,3 +120,11 @@ insert into branches (name) values
   ('Sylhet Branch'),
   ('Office')
 on conflict do nothing;
+
+-- MIGRATION: run this if table already exists
+alter table salary_records add column if not exists leave_adjustment numeric not null default 0;
+
+-- MIGRATION: Increment fields on employees
+alter table employees add column if not exists increment_amount numeric not null default 0;
+alter table employees add column if not exists increment_month int;
+alter table employees add column if not exists next_increment_session text;

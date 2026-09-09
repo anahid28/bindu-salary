@@ -197,11 +197,11 @@ export default function SettingsPage() {
       <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-800">
         <p className="font-semibold mb-1">Salary Rules (fixed)</p>
         <ul className="space-y-1 text-blue-700 text-xs">
-          <li>• Working days per month: <strong>26</strong></li>
-          <li>• Daily rate: Basic Salary ÷ 26</li>
+          <li>• Working days per month: <strong>30</strong></li>
+          <li>• Daily rate: Basic Salary ÷ 30</li>
           <li>• Leave deduction: only days beyond yearly allowance</li>
           <li>• Late deduction: every 3 late days = 1 day salary cut</li>
-          <li>• OT: 1 OT day = 1 full day salary (Basic ÷ 26)</li>
+          <li>• OT: 1 OT day = 1 full day salary (Basic ÷ 30)</li>
           <li>• Default conveyance: <strong>৳ 1,500/month</strong></li>
         </ul>
       </div>

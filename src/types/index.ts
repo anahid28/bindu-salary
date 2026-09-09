@@ -25,6 +25,9 @@ export type Employee = {
   nid_number?: string
   old_id_card?: string
   photo_url?: string
+  increment_amount?: number
+  increment_month?: number
+  next_increment_session?: string
 }
 
 export type SalaryRecord = {

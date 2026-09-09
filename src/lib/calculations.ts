@@ -1,6 +1,6 @@
 import type { Employee, SalaryRecord, EidRecord, SalaryCalc, EidCalc } from '@/types'
 
-const WORKING_DAYS = 26
+const WORKING_DAYS = 30
 
 export function calcSalary(employee: Employee, record: SalaryRecord, yearly_used_leave: number = 0): SalaryCalc {
   const daily_rate = employee.basic_salary / WORKING_DAYS

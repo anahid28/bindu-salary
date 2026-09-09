@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { formatTaka } from '@/lib/calculations'
 import type { Employee, Branch } from '@/types'
-import { Phone, Calendar, Droplets, CreditCard, MapPin, UserCircle, Briefcase, Banknote, ExternalLink, Pencil } from 'lucide-react'
+import { Phone, Calendar, Droplets, CreditCard, MapPin, UserCircle, Briefcase, Banknote, ExternalLink, Pencil, TrendingUp } from 'lucide-react'
+import { MONTHS } from '@/types'
 
 const AVATAR_COLORS = [
   'bg-blue-100 text-blue-700',
@@ -125,6 +126,24 @@ export function EmployeeProfileModal({ employee, open, onOpenChange, onEdit }: P
                 <p className="text-sm text-gray-800 font-medium">{employee.yearly_leave_allowance} days</p>
               </div>
             </div>
+            {employee.increment_month && (
+              <div className="flex items-start gap-2.5">
+                <TrendingUp size={14} className="mt-0.5 text-gray-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-gray-400">Last Increment</p>
+                  <p className="text-sm text-gray-800 font-medium">{MONTHS[employee.increment_month - 1]}</p>
+                </div>
+              </div>
+            )}
+            {employee.next_increment_session && (
+              <div className="flex items-start gap-2.5">
+                <TrendingUp size={14} className="mt-0.5 text-emerald-400 shrink-0" />
+                <div>
+                  <p className="text-xs text-gray-400">Next Increment Session</p>
+                  <p className="text-sm text-emerald-700 font-semibold">{employee.next_increment_session}</p>
+                </div>
+              </div>
+            )}
           </Section>
 
           <Section title="Personal">
